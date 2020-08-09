@@ -22,7 +22,7 @@ In the following statements, we assume your class is named "MyController",
   </pre></blockquote>
  
   The decompiled .class file is like:
-  <blockquote>
+  <blockquote><pre>
       ...
       private MyFirstService myFirstService;
       private MySecondService mySecondService;
@@ -33,12 +33,12 @@ In the following statements, we assume your class is named "MyController",
           this.mySecondService = mySecondService;
       }
       ...
-  </blockquote>
+  </pre></blockquote>
   Yes, the APT takes effect.
  
   For injection, @Pbwired can work well with @Autowired/@Resource, contructors and setters.
   Java code as follows:
-  <blockquote>
+  <blockquote><pre>
       ...
       @Pbwired
       private MyFirstService myFirstService;
@@ -68,10 +68,10 @@ In the following statements, we assume your class is named "MyController",
           this.mySixthService = mySixthService;
       }
       ...
-  </blockquote>
+  </pre></blockquote>
   
   The decompiled .class file is like:
-  <blockquote>
+  <blockquote><pre>
       ...
       private MyFirstService myFirstService;
       private MySecondService mySecondService;
@@ -100,7 +100,7 @@ In the following statements, we assume your class is named "MyController",
          this.mySecondService = mySecondService;
       }
       ...
-  </blockquote>
+  </pre></blockquote>
   Yes! You write your injection code only with @Pbwired, then the APT translates your code into what you want.
  
   Of course, you can also use "name" parameter of @Pbvalue:
