@@ -24,9 +24,9 @@ In the following statements, we assume your class is named "MyController",
  
   The decompiled .class file is like:
   <blockquote><pre>
-      ...
-      private MyFirstService myFirstService;
-      private MySecondService mySecondService;
+    ...
+    private MyFirstService myFirstService;
+    private MySecondService mySecondService;
  
       @Autowired
       public MyServiceImpl(MyFirstService myFirstService, MySecondService mySecondService) {
@@ -40,9 +40,9 @@ In the following statements, we assume your class is named "MyController",
   For injection, @Pbwired can work well with @Autowired/@Resource, contructors and setters.
   Java code as follows:
   <blockquote><pre>
-      ...
-      @Pbwired
-      private MyFirstService myFirstService;
+    ...
+    @Pbwired
+    private MyFirstService myFirstService;
  
       @Pbwired(wireType = WireType.SETTER)
       private MySecondService mySecondService;
@@ -73,9 +73,9 @@ In the following statements, we assume your class is named "MyController",
   
   The decompiled .class file is like:
   <blockquote><pre>
-      ...
-      private MyFirstService myFirstService;
-      private MySecondService mySecondService;
+    ...
+    private MyFirstService myFirstService;
+    private MySecondService mySecondService;
   
       @Autowired
       private MyThirdService myThirdService;
@@ -105,23 +105,23 @@ In the following statements, we assume your class is named "MyController",
   Yes! You write your injection code only with @Pbwired, then the APT translates your code into what you want.
  
   Of course, you can also use "name" parameter of @Pbvalue:
-  <blockquote>
-      ...
-      @Pbwired(name = "myService")
+  <blockquote><pre>
+    ...
+    @Pbwired(name = "myService")
       private MyService myService;
       ...
-  </blockquote>
+  </pre></blockquote>
   You will get .class file like:
-  <blockquote>
-      ...
-      private MyService myService;
+  <blockquote><pre>
+    ...
+    private MyService myService;
  
       @Autowired
       public MyServiceImpl(@Qulifier("myService") MyService myService) {
           this.myService = myService;
       }
       ...
-  </blockquote>
+  </pre></blockquote>
 
 Part 2: @Pbvalue.
 
@@ -133,34 +133,34 @@ Note: when @Pbvalue and @Value exist on the same field, @Pbvalue will be ignored
 Assuming your class is named "NameServiceImpl":
   For static value injection:
   You can write code as follows:
-  <blockquote>
+  <blockquote><pre>
       @Pbvalue("${me.name}")
       private static String name;
-  </blockquote>
+  </pre></blockquote>
  
   When compiled, your .class file looks like:
-  <blockquote>
+  <blockquote><pre>
       private static String name;
  
       @Value("${me.name}")
       public void setName(String name) {
           NameServiceImpl.name = name;
       }
-  </blockquote>
+  </pre></blockquote>
  
   <p>For non-static fields' injection, @Pbvalue is fully equals to @Value.
   You can write code as follows:
-  <blockquote>
+  <blockquote><pre>
       @Pbvalue("${me.name}")
       private String name;
-  </blockquote>
+  </pre></blockquote>
  
   When compiled, your .class file looks like:
-  <blockquote>
+  <blockquote><pre>
       private String name;
  
       @Value("${me.name}")
       public void setName(String name) {
           this.name = name;
       }
-  </blockquote>
+  </pre></blockquote>
