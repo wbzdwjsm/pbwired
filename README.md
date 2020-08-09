@@ -102,7 +102,7 @@ In the following statements, we assume your class is named "MyController",  and 
 ```
 Yes! You write your injection code only with [@Pbwired](https://github.com/wbzdwjsm/pbwired), then the APT translates your code into what you want.
  
-  Of course, you can also use "name" parameter:
+  You can also use "name" parameter:
 ```java
     ...
     @Pbwired(name = "myService")
