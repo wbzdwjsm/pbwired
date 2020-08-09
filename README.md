@@ -106,15 +106,15 @@ In the following statements, we assume your class is named "MyController",
  
   Of course, you can also use "name" parameter of @Pbvalue:
   <blockquote><pre>
+  ...
+  @Pbwired(name = "myService")
+    private MyService myService;
     ...
-    @Pbwired(name = "myService")
-      private MyService myService;
-      ...
   </pre></blockquote>
   You will get .class file like:
   <blockquote><pre>
-    ...
-    private MyService myService;
+  ...
+  private MyService myService;
  
       @Autowired
       public MyServiceImpl(@Qulifier("myService") MyService myService) {
@@ -134,13 +134,13 @@ Assuming your class is named "NameServiceImpl":
   For static value injection:
   You can write code as follows:
   <blockquote><pre>
-      @Pbvalue("${me.name}")
-      private static String name;
+    @Pbvalue("${me.name}")
+    private static String name;
   </pre></blockquote>
  
   When compiled, your .class file looks like:
   <blockquote><pre>
-      private static String name;
+    private static String name;
  
       @Value("${me.name}")
       public void setName(String name) {
@@ -151,13 +151,13 @@ Assuming your class is named "NameServiceImpl":
   <p>For non-static fields' injection, @Pbvalue is fully equals to @Value.
   You can write code as follows:
   <blockquote><pre>
-      @Pbvalue("${me.name}")
-      private String name;
+    @Pbvalue("${me.name}")
+    private String name;
   </pre></blockquote>
  
   When compiled, your .class file looks like:
   <blockquote><pre>
-      private String name;
+    private String name;
  
       @Value("${me.name}")
       public void setName(String name) {
