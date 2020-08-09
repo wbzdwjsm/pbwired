@@ -5,7 +5,7 @@ The .jar file will later uploaded to Maven Central Repository. After that, you o
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 </dependency>
 ```
 
