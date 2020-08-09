@@ -11,8 +11,9 @@ In the following statements, we assume your class is named "MyController",
   and it has some fields waiting for injection.
  
   By default, @Pbwired uses constructors for injection, you can use "wireType = WireType.SETTER" to tell APT to use setter injection. The typical java code is like:
-  <blockquote><pre>
-      ...
+  <blockquote>
+     <pre>
+     ...
       @Pbwired
       private MyFirstService myFirstService;
  
