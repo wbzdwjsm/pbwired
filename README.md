@@ -1,5 +1,14 @@
 #Pbwired
 
+The .jar file will later uploaded to Maven Central Repository. After that, you only need to add it to your pom.xml:
+```xml
+		<dependency>
+			<groupId>com.purpblue</groupId>
+			<artifactId>pbwired</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+```
+
 ##Summary
 
 The Pbwired annotations are used in Springboot/Springframework to simplify your code for injection, including 2 parts: @Pbwired and @Pbvalue, based on APT.
