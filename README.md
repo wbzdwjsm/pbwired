@@ -2,11 +2,11 @@
 
 The .jar file will later uploaded to Maven Central Repository. After that, you only need to add it to your pom.xml:
 ```xml
-		<dependency>
-			<groupId>com.purpblue</groupId>
-			<artifactId>pbwired</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+<dependency>
+	<groupId>com.purpblue</groupId>
+	<artifactId>pbwired</artifactId>
+	<version>0.1-SNAPSHOT</version>
+</dependency>
 ```
 
 ##Summary
