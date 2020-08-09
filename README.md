@@ -1,6 +1,7 @@
 The Pbwired annotations are used in Springboot/Springframework, including 2 parts: @Pbwired and @Pbvalue, based on APT.
 
-Part 1: @Pbwired
+Part 1: @Pbwired.
+
 Many developers like using constructors for injection because of its strong dependency, and many others like setter injection, but they don't
   like the annoying constructor/setter codes. Now they may try {@link com.purpblue.pbwired.annotation.Pbwired Pbwired}.
  
@@ -10,7 +11,7 @@ In the following statements, we assume your class is named "MyController",
   and it has some fields waiting for injection.
  
   By default, @Pbwired uses constructors for injection, you can use "wireType = WireType.SETTER" to tell APT to use setter injection. The typical java code is like:
-  <blockquote>
+  <blockquote><pre>
       ...
       @Pbwired
       private MyFirstService myFirstService;
@@ -18,7 +19,7 @@ In the following statements, we assume your class is named "MyController",
       @Pbwired
       private MySecondService mySecondService;
       ...
-  </blockquote>
+  </pre></blockquote>
  
   The decompiled .class file is like:
   <blockquote>
@@ -121,7 +122,8 @@ In the following statements, we assume your class is named "MyController",
       ...
   </blockquote>
 
-Part 2: @Pbvalue
+Part 2: @Pbvalue.
+
 This annotation can be used for static and non-static value injection. Yes, for static value injection, it still works!
    You don't need to write setters for static value injection, just write your code with @Pbvalue!
  
