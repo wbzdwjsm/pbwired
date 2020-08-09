@@ -14,8 +14,8 @@ In the following statements, we assume your class is named "MyController",
   <blockquote>
      <pre>
      ...
-   @Pbwired
-   private MyFirstService myFirstService;
+    @Pbwired
+    private MyFirstService myFirstService;
  
       @Pbwired
       private MySecondService mySecondService;
