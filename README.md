@@ -1,6 +1,6 @@
-#Pbwired
+# Pbwired
 
-The .jar file will be later uploaded to Maven Central Repository. After that, you only need to add following to your pom.xml and enable annotation processing in your IDE:
+For use, what you need is to add following to your pom.xml and enable annotation processing in your IDE:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
