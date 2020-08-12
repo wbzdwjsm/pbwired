@@ -1,6 +1,6 @@
-#Pbwired
+# Pbwired
 
-The .jar file will later uploaded to Maven Central Repository. After that, you only need to add following to your pom.xml and enable annotation processing in your IDE:
+For use, what you need is to add following to your pom.xml and enable annotation processing in your IDE:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
@@ -9,15 +9,15 @@ The .jar file will later uploaded to Maven Central Repository. After that, you o
 </dependency>
 ```
 
-##Summary
+## Summary
 
 The Pbwired annotations are used in Springboot/Springframework to simplify your code for injection, including 2 parts: @Pbwired and @Pbvalue, based on APT.
 
-###Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
+### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
 In Spring developing, many developers like using constructors for injection because of its strong dependency, and many others like setter injection, but they don't like the annoying constructor/setter codes. Now they may try [@Pbwired](https://github.com/wbzdwjsm/pbwired).
  
-####Note: when [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
+#### Note: when [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
  
 In the following statements, we assume your class is named "MyController",  and it has some fields waiting for injection.
  
@@ -130,11 +130,11 @@ Yes! You write your injection code only with [@Pbwired](https://github.com/wbzdw
     ...
 ```
 
-###Part 2: [@Pbvalue](https://github.com/wbzdwjsm/pbwired).
+### Part 2: [@Pbvalue](https://github.com/wbzdwjsm/pbwired).
 
 This annotation can be used for static and non-static value injection.   You don't need to write setters for static value injection, just write your code with [@Pbvalue](https://github.com/wbzdwjsm/pbwired)!
  
-####Note: when [@Pbvalue](https://github.com/wbzdwjsm/pbwired) and @Value exist on the same field, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) will be ignored.
+#### Note: when [@Pbvalue](https://github.com/wbzdwjsm/pbwired) and @Value exist on the same field, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) will be ignored.
  
 Assuming your class is named "NameServiceImpl":
   For static value injection, You can write code as follows:
