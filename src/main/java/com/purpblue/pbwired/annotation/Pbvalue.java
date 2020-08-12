@@ -15,44 +15,9 @@ import java.lang.annotation.Target;
  *
  * Note: when @Pbvalue and @Value exist on the same field, @Pbvalue will be ignored.
  *
- * Assuming your class is named "NameServiceImpl":
- * <p>For static value injection:
- * You can write code as follows:
- * <blockquote>
- *     @Pbvalue("${me.name}")
- *     private static String name;
- * </blockquote>
+ * For use, see https://github.com/wbzdwjsm/pbwired
  *
- * When compiled, your .class file looks like:
- * <blockquote>
- *     private static String name;
- *
- *     @Value("${me.name}")
- *     public void setName(String name) {
- *         NameServiceImpl.name = name;
- *     }
- * </blockquote>
- *
- * <p>For non-static fields' injection:
- * In this situation, @Pbvalue is fully equals to @Value.
- * You can write code as follows:
- * <blockquote>
- *     @Pbvalue("${me.name}")
- *     private String name;
- * </blockquote>
- *
- * When compiled, your .class file looks like:
- * <blockquote>
- *     private String name;
- *
- *     @Value("${me.name}")
- *     public void setName(String name) {
- *         this.name = name;
- *     }
- * </blockquote>
- * </p>
- *
- * For fields injection, you can use {@link com.purpblue.pbwired.annotation.Pbwired Pbwired}
+ * For field injection, see {@link com.purpblue.pbwired.annotation.Pbwired Pbwired}
  *
  * @author Purpblue
  * @see Pbwired
