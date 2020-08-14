@@ -1,6 +1,6 @@
 # Pbwired
 
-For use, what you need is to add following to your pom.xml and enable annotation processing in your IDE:
+What you need is to add following to your pom.xml and enable annotation processing in your IDE:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
