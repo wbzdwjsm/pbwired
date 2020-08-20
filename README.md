@@ -6,6 +6,7 @@ What you need is to add following to your pom.xml and enable annotation processi
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
 	<version>1.0.0</version>
+	<scope>provided</scope>
 </dependency>
 ```
 
