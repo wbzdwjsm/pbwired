@@ -9,7 +9,7 @@ What you need is to add following to your pom.xml and enable annotation processi
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 	<scope>provided</scope>
 </dependency>
 ```
@@ -36,8 +36,8 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
     ...
-    private MyFirstService myFirstService;
-    private MySecondService mySecondService;
+    private final MyFirstService myFirstService;
+    private final MySecondService mySecondService;
  
       @Autowired
       public MyServiceImpl(MyFirstService myFirstService, MySecondService mySecondService) {
@@ -82,7 +82,7 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
       ...
-      private MyFirstService myFirstService;
+      private final MyFirstService myFirstService;
       private MySecondService mySecondService;
   
       @Autowired
@@ -122,7 +122,7 @@ Yes! You write your injection code only with [@Pbwired](https://github.com/wbzdw
   You will get .class file like:
 ```java
     ...
-    private MyService myService;
+    private final MyService myService;
  
     @Autowired
     public MyServiceImpl(@Qulifier("myService") MyService myService) {
