@@ -16,7 +16,7 @@ What you need is to add following to your pom.xml and enable annotation processi
 
 ### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
-In Spring developing, more and more developers like using constructors for injection because of its many advantages, and some others like setter injection, but they don't like the annoying constructor/setter codes.   
+In Spring developing, more and more developers like using constructors for injection because of many advantages, and some others like setter injection, but they don't like the annoying constructor/setter codes.   
 Sometimes developers need to inject a value into a static variable, but they don't like the annoying setter code also.  
 Now they may try [@Pbwired](https://github.com/wbzdwjsm/pbwired).
  
