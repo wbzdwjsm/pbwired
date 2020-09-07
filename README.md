@@ -1,17 +1,18 @@
 # Pbwired
 
-For use, what you need is to add following to your pom.xml and enable annotation processing in your IDE:
+## Summary
+
+The Pbwired annotations are used in Springboot/Springframework to simplify your code for injection, including 2 parts: @Pbwired and @Pbvalue, based on APT.
+
+What you need is to add following to your pom.xml and enable annotation processing in your IDE:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
 	<version>1.0.0</version>
+	<scope>provided</scope>
 </dependency>
 ```
-
-## Summary
-
-The Pbwired annotations are used in Springboot/Springframework to simplify your code for injection, including 2 parts: @Pbwired and @Pbvalue, based on APT.
 
 ### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
