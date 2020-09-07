@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.HashMap;
 import java.util.Map;
@@ -203,6 +204,8 @@ public class PbwiredProcessor extends AbstractProcessor {
                                                         null
                                                 );
                                                 var.pos = classDecl.pos;
+                                                //If jcVariableDecl is not static, make it final
+                                                makeFinalIfPossible(jcVariableDecl);
                                                 m.params = m.params.append(var);
                                                 m.body.stats = m.body.stats.append(
                                                         treeMaker.Exec(treeMaker.Assign(
@@ -257,6 +260,14 @@ public class PbwiredProcessor extends AbstractProcessor {
                 }
             });
         }
+    }
+
+    private void makeFinalIfPossible(JCTree.JCVariableDecl jcVariableDecl) {
+        Set<Modifier> modifiersSet = jcVariableDecl.getModifiers().getFlags();
+        if(modifiersSet.contains(Modifier.STATIC) || modifiersSet.contains(Modifier.FINAL)) {
+            return;
+        }
+        jcVariableDecl.getModifiers().flags += Flags.FINAL;
     }
 
     /**
