@@ -9,7 +9,7 @@ What you need is to add following to your pom.xml and enable annotation processi
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.0</version>
 	<scope>provided</scope>
 </dependency>
 ```
