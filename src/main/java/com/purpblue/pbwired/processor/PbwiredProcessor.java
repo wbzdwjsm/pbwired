@@ -205,7 +205,7 @@ public class PbwiredProcessor extends AbstractProcessor {
                                                 );
                                                 var.pos = classDecl.pos;
                                                 //If jcVariableDecl is not static, make it final
-                                                makeFinalIfPossible(jcVariableDecl);
+                                                //makeFinalIfPossible(jcVariableDecl);
                                                 m.params = m.params.append(var);
                                                 m.body.stats = m.body.stats.append(
                                                         treeMaker.Exec(treeMaker.Assign(
