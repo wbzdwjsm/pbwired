@@ -38,8 +38,8 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
     ...
-    private final MyFirstService myFirstService;
-    private final MySecondService mySecondService;
+    private MyFirstService myFirstService;
+    private MySecondService mySecondService;
  
       @Autowired
       public MyServiceImpl(MyFirstService myFirstService, MySecondService mySecondService) {
@@ -84,7 +84,7 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
       ...
-      private final MyFirstService myFirstService;
+      private MyFirstService myFirstService;
       private MySecondService mySecondService;
   
       @Autowired
