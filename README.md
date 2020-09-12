@@ -53,20 +53,26 @@ In the following statements, we assume your class is named "MyController",  and 
   Java code as follows:
 ```java
       ...
+      //Will be add to constructor
       @Pbwired
       private MyFirstService myFirstService;
  
+      //For setter injection
       @Pbwired(wireType = WireType.SETTER)
       private MySecondService mySecondService;
  
+      //Common Autowired
       @Autowired
       private MyThirdService myThirdService;
  
+      //Common Resource
       @Resource
       private MyFourthService myFourthService;
 
-      private MyFifthService myFifthService;
+      //Original constructor injection, not using @Pbwired, see the constructor below
+      private final MyFifthService myFifthService;
 
+      //Original setter injection, not using @Pbwired, see the setter below
       private MySixthService mySixthService;
  
       @Autowired
@@ -92,7 +98,7 @@ In the following statements, we assume your class is named "MyController",  and 
       @Resource
       private MyFourthService myFourthService;
       
-      private MyFifthService myFifthService;
+      private final MyFifthService myFifthService;
       private MySixthService mySixthService;
 
       @Autowired
