@@ -9,14 +9,16 @@ What you need is to add following to your pom.xml and enable annotation processi
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.4</version>
 	<scope>provided</scope>
 </dependency>
 ```
 
 ### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
-In Spring developing, many developers like using constructors for injection because of its strong dependency, and many others like setter injection, but they don't like the annoying constructor/setter codes. Now they may try [@Pbwired](https://github.com/wbzdwjsm/pbwired).
+In Spring developing, more and more developers like using constructors for injection because of many advantages, and some others like setter injection, but they don't like the annoying constructor/setter codes.   
+Sometimes developers need to inject a value into a static variable, but they don't like the annoying setter code also.  
+Now they may try [@Pbwired](https://github.com/wbzdwjsm/pbwired).
  
 #### Note: when [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
  
@@ -36,8 +38,8 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
     ...
-    private MyFirstService myFirstService;
-    private MySecondService mySecondService;
+    private final MyFirstService myFirstService;
+    private final MySecondService mySecondService;
  
       @Autowired
       public MyServiceImpl(MyFirstService myFirstService, MySecondService mySecondService) {
@@ -82,7 +84,7 @@ In the following statements, we assume your class is named "MyController",  and 
   The decompiled .class file is like:
 ```java
       ...
-      private MyFirstService myFirstService;
+      private final MyFirstService myFirstService;
       private MySecondService mySecondService;
   
       @Autowired
@@ -122,7 +124,7 @@ Yes! You write your injection code only with [@Pbwired](https://github.com/wbzdw
   You will get .class file like:
 ```java
     ...
-    private MyService myService;
+    private final MyService myService;
  
     @Autowired
     public MyServiceImpl(@Qulifier("myService") MyService myService) {

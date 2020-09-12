@@ -24,6 +24,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -191,10 +192,10 @@ public class PbwiredProcessor extends AbstractProcessor {
                             break;
                         case CONSTRUCTOR:
                             for(JCTree t : classDecl.defs) {
-                                if(t.getKind().equals(Tree.Kind.METHOD)) {
+                                if (t.getKind().equals(Tree.Kind.METHOD)) {
                                     JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) t;
-                                    if(STRING_CTOR.equals(m.getName().toString())) {
-                                        for(JCTree.JCAnnotation ann : m.getModifiers().annotations) {
+                                    if (STRING_CTOR.equals(m.getName().toString())) {
+                                        for (JCTree.JCAnnotation ann : m.getModifiers().annotations) {
                                             //The class has @Autowired-annotated constructor
                                             if (alreadyInit.get(classDecl.sym.fullname.toString()) == AUTOWIRED_CTOR || STRING_AUTOWIRED.equals(ann.annotationType.toString())) {
                                                 JCTree.JCVariableDecl var = treeMaker.VarDef(
@@ -215,43 +216,30 @@ public class PbwiredProcessor extends AbstractProcessor {
                                                 alreadyInit.put(classDecl.sym.fullname.toString(), AUTOWIRED_CTOR);
                                             }
                                         }
+                                        //No-args ctor
+                                        if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0
+                                                && m.params.size() == 0) {
+                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(classPath(AUTOWIRED_PATH), List.nil());
+                                            m.mods.annotations = m.mods.annotations.append(jcAutowird);
+                                            JCTree.JCVariableDecl varDecl = treeMaker.VarDef(
+                                                    makeParamModifiers(p),
+                                                    jcVariableDecl.name,
+                                                    jcVariableDecl.vartype,
+                                                    null
+                                            );
+                                            varDecl.pos = classDecl.pos;
+                                            //If jcVariableDecl is not static, make it final
+                                            makeFinalIfPossible(jcVariableDecl);
+                                            m.params = List.of(varDecl);
+                                            JCTree.JCExpressionStatement assign =
+                                                    treeMaker.Exec(treeMaker.Assign(
+                                                            treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), jcVariableDecl.name),
+                                                            treeMaker.Ident(jcVariableDecl.name)));
+                                            m.body.stats = m.body.stats.append(assign);
+                                            alreadyInit.put(classDecl.sym.fullname.toString(), AUTOWIRED_CTOR);
+                                        }
                                     }
                                 }
-                            }
-                            //The class does not has @Autowired-annotated constructor, add one.
-                            if(alreadyInit.get(classDecl.sym.fullname.toString()) == 0) {
-                                JCTree.JCVariableDecl varDecl = treeMaker.VarDef(
-                                        makeParamModifiers(p),
-                                        jcVariableDecl.name,
-                                        jcVariableDecl.vartype,
-                                        null
-                                );
-                                varDecl.pos = classDecl.pos;
-                                List<JCTree.JCVariableDecl> vars = List.of(varDecl);
-
-                                ListBuffer<JCTree.JCStatement> methodBody = new ListBuffer<>();
-                                methodBody.append(
-                                        treeMaker.Exec(treeMaker.Assign(
-                                                treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), jcVariableDecl.name),
-                                                treeMaker.Ident(jcVariableDecl.name)))
-                                );
-                                JCTree.JCBlock methodBody1 = treeMaker.Block(0, methodBody.toList());
-                                JCTree.JCAnnotation autowiredAnno = treeMaker.Annotation(
-                                        classPath(AUTOWIRED_PATH),List.nil()
-                                );
-                                List<JCTree.JCAnnotation> annoList = List.of(autowiredAnno);
-                                JCTree.JCMethodDecl ctor = treeMaker.MethodDef(
-                                        treeMaker.Modifiers(Flags.PUBLIC, annoList),
-                                        names.fromString(STRING_CTOR),
-                                        treeMaker.Type(new Type.JCVoidType()),
-                                        List.nil(),
-                                        vars,
-                                        List.nil(),
-                                        methodBody1,
-                                        null
-                                );
-                                classDecl.defs = classDecl.defs.append(ctor);
-                                alreadyInit.put(classDecl.sym.fullname.toString(), AUTOWIRED_CTOR);
                             }
                             break;
                         default:
