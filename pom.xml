@@ -96,7 +96,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+ 
             <!-- gpg plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
