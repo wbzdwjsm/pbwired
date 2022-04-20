@@ -10,21 +10,20 @@ import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,61 +31,64 @@ import java.util.Set;
 import static java.util.Locale.ENGLISH;
 
 /**
- * Note: @Pbwired and @Pbvalue never change Spring's actions!
- * When compiled, the .class files have the same bytecodes as those of using @Autowired/@Resource/@Value.
+ * A processor used for processing the annotations - {@link Pbwired @Pbwired} and {@link Pbvalue @Pbvalue}.
  *
  * @see Pbwired
  * @see Pbvalue
+ *
  * @author Purpblue
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"com.purpblue.pbwired.annotation.Pbwired",
-    "com.purpblue.pbwired.annotation.Pbvalue"})
-public class PbwiredProcessor extends AbstractProcessor {
 
-    private JavacTrees javacTrees;
-    private TreeMaker treeMaker;
-    private Names names;
+class PbwiredProcessor {
 
-    /** Already has @Autowired-annotated constructor */
+    private final JavacTrees javacTrees;
+    private final TreeMaker treeMaker;
+    private final Names names;
+    private final Messager messager;
+    private final PbMainProcessor mainProcessor;
+
+    /**
+     * Already has @Autowired-annotated constructor
+     */
     private static final int AUTOWIRED_CTOR = 1;
 
-    /** Some annotation paths */
+    /**
+     * Some annotation paths
+     */
     private static final String AUTOWIRED_PATH = "org.springframework.beans.factory.annotation.Autowired";
     private static final String QUALIFIER_PATH = "org.springframework.beans.factory.annotation.Qualifier";
     private static final String VALUE_PATH = "org.springframework.beans.factory.annotation.Value";
 
-    /** Some useful strings */
+    /**
+     * Some useful strings
+     */
     private static final String STRING_VALUE = "value";
     private static final String STRING_THIS = "this";
     private static final String STRING_AUTOWIRED = "Autowired";
     private static final String STRING_CTOR = "<init>";
 
-    @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        Context context = ((JavacProcessingEnvironment)processingEnv).getContext();
-        this.javacTrees = JavacTrees.instance(processingEnv);
-        this.treeMaker = TreeMaker.instance(context);
-        this.names = Names.instance(context);
+    PbwiredProcessor(Messager messager, JavacTrees javacTrees, Names names, TreeMaker treeMaker, PbMainProcessor mainProcessor) {
+        this.messager = messager;
+        this.names = names;
+        this.treeMaker = treeMaker;
+        this.javacTrees = javacTrees;
+        this.mainProcessor = mainProcessor;
     }
 
-    @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    public void processPbwiredAndPbvalue(RoundEnvironment roundEnv) {
         //process @Pbwired
         processPbwired(roundEnv);
         //process @Pbvalue
         processPbvalue(roundEnv);
-        return true;
     }
 
     private void processPbvalue(RoundEnvironment roundEnv) {
         Set<? extends Element> pbvalueElements = roundEnv.getElementsAnnotatedWith(Pbvalue.class);
-        for(Element e : pbvalueElements) {
+        for (Element e : pbvalueElements) {
             JCTree tree = javacTrees.getTree(e);
             //if @Value exists, ignore @Pbvalue
             Value v = e.getAnnotation(Value.class);
-            if(v != null) {
+            if (v != null) {
                 continue;
             }
             Pbvalue pbvalue = e.getAnnotation(Pbvalue.class);
@@ -98,7 +100,7 @@ public class PbwiredProcessor extends AbstractProcessor {
                     JCTree.JCClassDecl ownClass = (JCTree.JCClassDecl) javacTrees.getTree(owner);
                     JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(STRING_VALUE)), treeMaker.Literal(pbvalue.value()));
                     List<JCTree.JCExpression> params = List.of(jc0);
-                    JCTree.JCAnnotation valued = treeMaker.Annotation(classPath(VALUE_PATH), params);
+                    JCTree.JCAnnotation valued = treeMaker.Annotation(mainProcessor.access(VALUE_PATH), params);
                     List<JCTree.JCAnnotation> annos = List.of(valued);
                     JCTree.JCVariableDecl param = treeMaker.VarDef(
                             treeMaker.Modifiers(Flags.PARAMETER),
@@ -136,20 +138,19 @@ public class PbwiredProcessor extends AbstractProcessor {
         Set<? extends Element> pbwiredElements = roundEnv.getElementsAnnotatedWith(Pbwired.class);
         //Init:0, has @Autowired-annotated constructor: 1. When 1, it is never changed to 0.
         Map<String, Integer> alreadyInit = new HashMap<>();
-        for(Element e : pbwiredElements) {
+        for (Element e : pbwiredElements) {
             JCTree tree = javacTrees.getTree(e);
             //if @Resource/@Autowired exists，ignore @Pbwired
             Resource r = e.getAnnotation(Resource.class);
-            if(r != null) {
+            if (r != null) {
                 continue;
             }
             Autowired a = e.getAnnotation(Autowired.class);
-            if(a != null) {
+            if (a != null) {
                 continue;
             }
 
             Pbwired p = e.getAnnotation(Pbwired.class);
-            String pName = p.name();
             tree.accept(new TreeTranslator() {
                 @Override
                 public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
@@ -158,7 +159,7 @@ public class PbwiredProcessor extends AbstractProcessor {
                     alreadyInit.putIfAbsent(classDecl.sym.fullname.toString(), 0);
                     switch (p.wireType()) {
                         case SETTER:
-                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(classPath(AUTOWIRED_PATH), List.nil());
+                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(mainProcessor.access(AUTOWIRED_PATH), List.nil());
                             List<JCTree.JCAnnotation> annotations = List.of(jcAnnotation);
                             List<JCTree.JCTypeParameter> typeParameters = List.nil();
                             JCTree.JCVariableDecl p0 = treeMaker.VarDef(
@@ -191,7 +192,7 @@ public class PbwiredProcessor extends AbstractProcessor {
                             classDecl.defs = classDecl.defs.append(setter0);
                             break;
                         case CONSTRUCTOR:
-                            for(JCTree t : classDecl.defs) {
+                            for (JCTree t : classDecl.defs) {
                                 if (t.getKind().equals(Tree.Kind.METHOD)) {
                                     JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) t;
                                     if (STRING_CTOR.equals(m.getName().toString())) {
@@ -219,7 +220,7 @@ public class PbwiredProcessor extends AbstractProcessor {
                                         //No-args ctor
                                         if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0
                                                 && m.params.size() == 0) {
-                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(classPath(AUTOWIRED_PATH), List.nil());
+                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(mainProcessor.access(AUTOWIRED_PATH), List.nil());
                                             m.mods.annotations = m.mods.annotations.append(jcAutowird);
                                             JCTree.JCVariableDecl varDecl = treeMaker.VarDef(
                                                     makeParamModifiers(p),
@@ -252,7 +253,7 @@ public class PbwiredProcessor extends AbstractProcessor {
 
     private void makeFinalIfPossible(JCTree.JCVariableDecl jcVariableDecl) {
         Set<Modifier> modifiersSet = jcVariableDecl.getModifiers().getFlags();
-        if(modifiersSet.contains(Modifier.STATIC) || modifiersSet.contains(Modifier.FINAL)) {
+        if (modifiersSet.contains(Modifier.STATIC) || modifiersSet.contains(Modifier.FINAL)) {
             return;
         }
         jcVariableDecl.getModifiers().flags += Flags.FINAL;
@@ -260,15 +261,16 @@ public class PbwiredProcessor extends AbstractProcessor {
 
     /**
      * creates parameter modifiers according to given Pbwired.
+     *
      * @param p
      * @return
      */
     private JCTree.JCModifiers makeParamModifiers(Pbwired p) {
         JCTree.JCModifiers modifiers;
-        if(p.name().trim().length() > 0) {
+        if (p.name().trim().length() > 0) {
             JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(STRING_VALUE)), treeMaker.Literal(p.name()));
             List<JCTree.JCExpression> annParams = List.of(jc0);
-            JCTree.JCAnnotation qualifier = treeMaker.Annotation(classPath(QUALIFIER_PATH), annParams);
+            JCTree.JCAnnotation qualifier = treeMaker.Annotation(mainProcessor.access(QUALIFIER_PATH), annParams);
             List<JCTree.JCAnnotation> annos = List.of(qualifier);
             modifiers = treeMaker.Modifiers(Flags.PARAMETER, annos);
         } else {
@@ -277,23 +279,8 @@ public class PbwiredProcessor extends AbstractProcessor {
         return modifiers;
     }
 
-    /**
-     * Getting appropriate JCExpression from a fully qualified class name
-     * @param path
-     * @return
-     */
-    private JCTree.JCExpression classPath(String path) {
-        Assert.checkNonNull(path, "path mustn't be null!");
-        String[] cArray = path.split("\\.");
-        JCTree.JCExpression expr = treeMaker.Ident(names.fromString(cArray[0]));
-        for (int i = 1; i < cArray.length; i++) {
-            expr = treeMaker.Select(expr, names.fromString(cArray[i]));
-        }
-        return expr;
-    }
-
     private static String generateMethodName(String fieldName) {
-        if(fieldName.length() > 1
+        if (fieldName.length() > 1
                 && Character.isLowerCase(fieldName.charAt(0))
                 && Character.isUpperCase(fieldName.charAt(1))) {
             return "set" + fieldName;

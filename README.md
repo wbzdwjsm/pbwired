@@ -1,179 +1,70 @@
 # Pbwired
+The latest version is 1.1.1
 
-## Summary
+Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very cool way in SpringBoot,
+including 3 annotations: @Pbwired, @Pbvalue and @FinalInject.
 
-The Pbwired annotations are used in Springboot/Springframework to simplify your code for injection, including 2 parts: @Pbwired and @Pbvalue, based on APT.
+For @FinalInject, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/tag/v1.1.1> to download the IDEA plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) and install it.
 
-What you need is to add following to your pom.xml and enable annotation processing in your IDE:
+## Usage
+Maven:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.0.4</version>
-	<scope>provided</scope>
+	<version>1.1.1</version>
 </dependency>
 ```
 
 ### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
-In Spring developing, more and more developers like using constructors for injection because of many advantages, and some others like setter injection, but they don't like the annoying constructor/setter codes.   
-Sometimes developers need to inject a value into a static variable, but they don't like the annoying setter code also.  
-Now they may try [@Pbwired](https://github.com/wbzdwjsm/pbwired).
- 
-#### Note: when [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
- 
-In the following statements, we assume your class is named "MyController",  and it has some fields waiting for injection.
- 
-  By default, @Pbwired uses constructors for injection, you can use "wireType = WireType.SETTER" to tell APT to use setter injection. The typical java code is like:
-```java
-      ...
-      @Pbwired
-      private MyFirstService myFirstService;
- 
-      @Pbwired
-      private MySecondService mySecondService;
-      ...
-```
- 
-  The decompiled .class file is like:
-```java
-    ...
-    private final MyFirstService myFirstService;
-    private final MySecondService mySecondService;
- 
-      @Autowired
-      public MyServiceImpl(MyFirstService myFirstService, MySecondService mySecondService) {
-          this.myFirstService = myFirstService;
-          this.mySecondService = mySecondService;
-      }
-      ...
-```
- 
-  For injection, @Pbwired can work well with @Autowired/@Resource, contructors and setters.
-  Java code as follows:
-```java
-      ...
-      //Will be add to constructor
-      @Pbwired
-      private MyFirstService myFirstService;
- 
-      //For setter injection
-      @Pbwired(wireType = WireType.SETTER)
-      private MySecondService mySecondService;
- 
-      //Common Autowired
-      @Autowired
-      private MyThirdService myThirdService;
- 
-      //Common Resource
-      @Resource
-      private MyFourthService myFourthService;
+@Pbwired helps inject a bean into a field which can even be static.
+You can choose the way for injection: By constructor or by setter,
+what you need is only the annotation - @Pbwired, just like using
+@Autowired/@Resource.
 
-      //Original constructor injection, not using @Pbwired, see the constructor below
-      private final MyFifthService myFifthService;
+Assuming current class is named "TestController":
 
-      //Original setter injection, not using @Pbwired, see the setter below
-      private MySixthService mySixthService;
- 
-      @Autowired
-      public MyController(MyFifthService myFifthService) {
-          this.myFifthService = myFifthService;
-      }
- 
-      @Autowired
-      public void setMySixthService(MySixthService mySixthService) {
-          this.mySixthService = mySixthService;
-      }
-      ...
-```
-  
-  The decompiled .class file is like:
-```java
-      ...
-      private final MyFirstService myFirstService;
-      private MySecondService mySecondService;
-  
-      @Autowired
-      private MyThirdService myThirdService;
-      @Resource
-      private MyFourthService myFourthService;
-      
-      private final MyFifthService myFifthService;
-      private MySixthService mySixthService;
+| your code | bytecode (decompiled) |
+| :--- | :--- |
+|@Pbwired <br> private MyService myService;|private final MyService myService;<br>@Autowired<br>public TestController(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService = myService;<br>}|
+|@Pbwired(wireType = WireType.SETTER)<br>private MyService myService;|private MyService myService;<br>@Autowired<br>public void setMyService(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService = myService;<br>}|
+|@Pbwired <br> private static MyService myService;|private static MyService myService;<br>@Autowired <br> public TestController(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;TestController.myService = myService;<br>}|
+|@Pbwired(name = "myService2")<br>private MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired<br>public TestController(MyService3 myService3) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>}|private final MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired<br>public TestController(MyService3 myService3, @Qualifier("myService2") MyService2 myService2) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService2 = myService2;<br>}|
 
-      @Autowired
-      public MyController(MyFifthService myFifthService, MyFirstService myFirstService) {
-         this.myFifthService = myFifthService;
-         this.myFirstService = myFirstService;
-      }
+#### Note: When [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
 
-      @Autowired
-      public void setMySixthService(MySixthService mySixthService) {
-         this.mySixthService = mySixthService;
-      }
-    
-      @Autowired
-      public void setMySecondService(MySecondService mySecondService) {
-         this.mySecondService = mySecondService;
-      }
-      ...
-```
-Yes! You write your injection code only with [@Pbwired](https://github.com/wbzdwjsm/pbwired), then the APT translates your code into what you want.
+### Part 2: [@Pbvalue](https://github.com/wbzdwjsm/pbwired)
+
+This annotation can be used for static and non-static value injection.   You don't need to write setters for static value injection.
  
-  You can also use "name" parameter:
+Assuming your class is named "TestController":
+
+| your code | bytecode (decompiled) |
+| :--- | :--- |
+|@Pbvalue("${me.name}")<br>private static String name;|private static String name;<br>@Value("${me.name}")<br>public void setName(String name) {<br>&nbsp;&nbsp;&nbsp;&nbsp;TestController.name = name;<br>}|
+|@Pbvalue("${me.name}")<br>private String name;|private String name;<br>@Value("${me.name}")<br>public void setName(String name) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.name = name;<br>}|
+
+#### Note: When [@Pbvalue](https://github.com/wbzdwjsm/pbwired) and @Value exist on the same field, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) will be ignored.
+
+### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired).
+
+When you write a constant class, you can also inject value into final or even static final fields.
+
+For constants, just annotate fields with @FinalInject, no matter whether they are "static final" or not.
+
 ```java
-    ...
-    @Pbwired(name = "myService")
-    private MyService myService;
-    ...
-```
-  You will get .class file like:
-```java
-    ...
-    private final MyService myService;
- 
-    @Autowired
-    public MyServiceImpl(@Qulifier("myService") MyService myService) {
-        this.myService = myService;
-    }
-    ...
+	@FinalInject(key = "constant.0")
+	public static final String MY_CONSTANT_0;  
 ```
 
-### Part 2: [@Pbvalue](https://github.com/wbzdwjsm/pbwired).
+Also accepts a default value just like Spring's annotation - @Value, with a colon as the separator:
 
-This annotation can be used for static and non-static value injection.   You don't need to write setters for static value injection, just write your code with [@Pbvalue](https://github.com/wbzdwjsm/pbwired)!
- 
-#### Note: when [@Pbvalue](https://github.com/wbzdwjsm/pbwired) and @Value exist on the same field, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) will be ignored.
- 
-Assuming your class is named "NameServiceImpl":
-  For static value injection, You can write code as follows:
 ```java
-    @Pbvalue("${me.name}")
-    private static String name;
+	@FinalInject(key = "constant.0:myConstants")
+	public static final String MY_CONSTANT_0;
 ```
- 
-  When compiled, your .class file looks like:
-```java
-    private static String name;
- 
-    @Value("${me.name}")
-    public void setName(String name) {
-        NameServiceImpl.name = name;
-    }
-```
- 
-For non-static value injection, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) is fully equals to @Value.  You can write code as follows:
-```java
-    @Pbvalue("${me.name}")
-    private String name;
-```
- 
-  When compiled, your .class file looks like:
-```java
-    private String name;
- 
-    @Value("${me.name}")
-    public void setName(String name) {
-        this.name = name;
-    }
-```
+
+#### Note: You should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and these key-value pairs are shared by @Value and @FinalInject. 
+#### Note: You can use @FinalInject in many classes including POJOs, the only restriction is that DO NOT use it in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's env which @FinalInject needs.
+#### Note: Once again, as described in the beginning, when you annotate your final or static final fields with @FinalInject, your code may be red wavy underlined. Take Intellij IDEA as an example, you need to install the plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) to clean it: <https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar>.
