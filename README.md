@@ -65,6 +65,6 @@ Also accepts a default value just like Spring's annotation - @Value, with a colo
 	public static final String MY_CONSTANT_0;
 ```
 
-#### Note: Like @Value, you should set key-value pairs in .properties/.yml files in advance.
+#### Note: You should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and these key-value pairs are shared by @Value and @FinalInject. 
 #### Note: You can use @FinalInject in many classes including POJOs, the only restriction is that DO NOT use it in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's env which @FinalInject needs.
 #### Note: Once again, as described in the beginning, when you annotate your final or static final fields with @FinalInject, your code may be red wavy underlined. Take Intellij IDEA as an example, you need to install the plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) to clean it: <https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar>.
