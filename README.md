@@ -49,7 +49,7 @@ Assuming your class is named "TestController":
 
 ### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired)
 
-#### Warning: @FinalInject in v1.2.0 is not compatible with that v1.1.1
+#### Warning: @FinalInject in v1.2.0 is not compatible with that in v1.1.1. v1.1.1 is deprecated.
 
 #### From v1.2.0, @FinalInject uses the same key style as that of Spring's @Value, i.e. the "key" or "value" attributes are wrapped by ${}, #{}, etc.
 
