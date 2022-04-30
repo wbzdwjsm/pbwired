@@ -4,7 +4,7 @@ The latest version is 1.2.0
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very cool way in SpringBoot,
 including 4 annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass.
 
-#### For @FinalInject and @ConstantClass, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/tag/v1.1.1> to download the IDEA plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) and install it.
+#### For @FinalInject and @ConstantClass, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar> to download the IDEA plugin [pbwired-plugin.jar](https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar) and install it.
 
 ## Usage
 Maven:
@@ -150,4 +150,4 @@ public class Constants1 {
 
 #### Note: Once again, you should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and of course these key-value pairs are shared by @Value, @FinalInject and @ConstantClass.
 #### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
-#### Note: Once again, as described in the beginning, when you annotate your fields/classes with @FinalInject/@ConstantClass, your code may be red wavy underlined. Take Intellij IDEA as an example, you need to install the plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) to clean them: <https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar>.
+#### Note: Once again, as described in the beginning, when you annotate your fields/classes with @FinalInject/@ConstantClass, your code may be red wavy underlined. Take Intellij IDEA as an example, you need to install the plugin [pbwired-plugin](https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar) to clean them: <https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar>.
