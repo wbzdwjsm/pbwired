@@ -1,5 +1,5 @@
 # Pbwired
-The latest version is 1.1.1
+This version is deprecated. You should update to v1.2.0 as least.
 
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very cool way in SpringBoot,
 including 3 annotations: @Pbwired, @Pbvalue and @FinalInject.
