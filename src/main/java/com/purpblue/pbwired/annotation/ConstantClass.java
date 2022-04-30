@@ -59,7 +59,7 @@ public @interface ConstantClass {
 
     /**
      * Field names that will not be injected.
-     * @return Fields that will <string>NOT</string> be processed.
+     * @return Fields that will <strong>NOT</strong> be processed.
      */
     String[] fieldsExclude() default {};
 
