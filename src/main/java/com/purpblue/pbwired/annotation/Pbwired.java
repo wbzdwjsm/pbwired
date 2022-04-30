@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * @author Purpblue
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD})
 public @interface Pbwired {
     /**
      * <p>To indicate in which way for injection, default is {@link WireType#CONSTRUCTOR CONSTRUCTOR}.

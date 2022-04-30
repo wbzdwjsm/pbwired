@@ -24,14 +24,15 @@ import java.util.Set;
 @SupportedAnnotationTypes(
         {"com.purpblue.pbwired.annotation.Pbwired",
         "com.purpblue.pbwired.annotation.Pbvalue",
-        "com.purpblue.pbwired.annotation.FinalInject"})
+        "com.purpblue.pbwired.annotation.FinalInject",
+        "com.purpblue.pbwired.annotation.ConstantClass"})
 public class PbMainProcessor extends AbstractProcessor {
 
     private JavacTrees javacTrees;
     private TreeMaker treeMaker;
     private Names names;
     private Messager messager;
-    private TreeUtils treeUtils;
+    private Utils utils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -41,40 +42,39 @@ public class PbMainProcessor extends AbstractProcessor {
         this.javacTrees = JavacTrees.instance(processingEnv);
         this.treeMaker = TreeMaker.instance(context);
         this.names = Names.instance(context);
-        treeUtils = new TreeUtils();
+        utils = new Utils();
     }
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         PbwiredProcessor processor = new PbwiredProcessor(messager, javacTrees, names, treeMaker, this);
         processor.processPbwiredAndPbvalue(roundEnv);
         FinalInjectProcessor finalInjectProcessor = new FinalInjectProcessor(messager, javacTrees, names, treeMaker, this);
-        finalInjectProcessor.processFinalInjectAnnotation(roundEnv);
-        return false;
+        finalInjectProcessor.processFinalInjectAndConstantClassAnnotation(roundEnv);
+        return true;
     }
 
     // ----------------------Utils------------------------------
     JCTree.JCExpression access(String path) {
-        return treeUtils.access(path);
+        return utils.access(path);
     }
 
     JCTree.JCExpression access(String path, boolean firstPrimitive) {
-        return treeUtils.access(path, firstPrimitive);
+        return utils.access(path, firstPrimitive);
     }
 
     void print(Object o) {
-        treeUtils.print(o);
+        utils.print(o);
     }
 
     void printWarning(Object o) {
-        treeUtils.print(o);
+        utils.print(o);
     }
 
     TypeTag getAppropriateTypeTag(String primitiveName) {
-        return treeUtils.getAppropriateTypeTag(primitiveName);
+        return utils.getAppropriateTypeTag(primitiveName);
     }
 
-    class TreeUtils {
+    class Utils {
         private void printWarning(Object o) {
             messager.printMessage(Diagnostic.Kind.WARNING, String.valueOf(o));
         }

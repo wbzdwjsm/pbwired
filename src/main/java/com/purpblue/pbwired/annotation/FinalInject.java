@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -51,9 +52,17 @@ import java.lang.annotation.Target;
 public @interface FinalInject {
 
     /**
+     * The "key"(or "value") attribute is highly similar to the "value" attribute in {@link Value @Value}.
      * @return The key configured in Spring's config files which linked to the value that developers want to use,
      *         accepting a colon as the separator for default value.
+     *         EL expression is accepted.
      */
-    String key();
+    @AliasFor("value")
+    String key() default "";
 
+    /**
+     * @see #key()
+     */
+    @AliasFor("key")
+    String value() default "";
 }
