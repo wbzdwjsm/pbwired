@@ -150,4 +150,3 @@ public class Constants1 {
 
 #### Note: Once again, you should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and of course these key-value pairs are shared by @Value, @FinalInject and @ConstantClass.
 #### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
-#### Note: Once again, as described in the beginning, when you annotate your fields/classes with @FinalInject/@ConstantClass, your code may be red wavy underlined. Take Intellij IDEA as an example, you need to install the plugin [pbwired-plugin](https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar) to clean them: <https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar>.
