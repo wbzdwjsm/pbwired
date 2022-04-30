@@ -98,7 +98,7 @@ When compiled, the .class file looks like follows:
     ...
 ```
 
-### Part 3: [@ConstantClass](https://github.com/wbzdwjsm/pbwired)
+### Part 4: [@ConstantClass](https://github.com/wbzdwjsm/pbwired)
 If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! I answer it for you.
 Like @ConfigurationProperties in Spring, you can use @ConstantClass to annotate a class to indicate that "All suitable fields in this class will be injected".
 Fields in this class are injected by their names(Setter methods are NOT needed). Also like @ConfigurationProperties, a "prefix" attribute is acceptable.
