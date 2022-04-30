@@ -1,38 +1,37 @@
 package com.purpblue.pbwired.util;
 
-import org.springframework.boot.convert.ApplicationConversionService;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.DependencyDescriptor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
- * ValueResolver for final fields, based on {@link Environment} and
- * {@link ConversionService}.
+ * ValueResolver for constants, based on {@link DefaultListableBeanFactory DefaultListableBeanFactory}.
  *
+ * @see DefaultListableBeanFactory
  * @author Purpblue
  */
 public class ValueResolver {
-    private static Environment env;
+    private static BeanFactory beanFactory;
 
-    public static void setEnv(Environment env) {
-        ValueResolver.env = env;
+    public static void setBeanFactory(BeanFactory beanFactory) {
+        ValueResolver.beanFactory = beanFactory;
     }
 
-    public static <T> T getProperty(String key, Class<T> varType, String varName) {
-        if (key == null || "".equals(key)) {
-            throw new IllegalArgumentException("@FinalInject: var: " + varName + ": key must NOT be empty String.");
+    public static <T> T getProperty(Class<?> klazz, String varName) {
+        if (beanFactory instanceof DefaultListableBeanFactory) {
+            DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
+            try {
+                return (T) defaultListableBeanFactory.doResolveDependency(
+                    new DependencyDescriptor(klazz.getDeclaredField(varName), true, true),
+                    null,
+                    null,
+                    null
+                );
+            } catch (NoSuchFieldException e) {
+                // ignore
+            }
         }
-        if (env == null) {
-            throw new NullPointerException("DO NOT use @FinalInject in Boot Class(@SpringBootApplication-annotated class) or EnvironmentPostProcessor! Doing this will lead to NPE for Environment has not been initialized yet!");
-        }
-        String[] keyAndDefaultValue = key.split(":");
-        T result = env.getProperty(keyAndDefaultValue[0], varType);
-        if (result != null) {
-            return result;
-        }
-        if (keyAndDefaultValue.length == 1) {
-            throw new IllegalArgumentException("@FinalInject: var: " + varName + ". Cannot resolve key: " + key + ". Have you forgotten to set the value in configs?");
-        }
-        ConversionService conversionService = ApplicationConversionService.getSharedInstance();
-        return conversionService.convert(keyAndDefaultValue[1], varType);
+        throw new BeanFactoryNotReadyException("org.springframework.beans.factory.support.DefaultListableBeanFactory does not exist in classpath, or has not initialized yet. Do NOT use @ConstantClass or @FinalInject in Boot Class. The variable Name: " + varName);
     }
+
 }

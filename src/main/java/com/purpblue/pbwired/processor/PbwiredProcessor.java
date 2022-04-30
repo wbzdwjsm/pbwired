@@ -5,6 +5,7 @@ package com.purpblue.pbwired.processor;
 
 import com.purpblue.pbwired.annotation.Pbvalue;
 import com.purpblue.pbwired.annotation.Pbwired;
+import com.purpblue.pbwired.util.Constants;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
@@ -47,26 +48,6 @@ class PbwiredProcessor {
     private final Messager messager;
     private final PbMainProcessor mainProcessor;
 
-    /**
-     * Already has @Autowired-annotated constructor
-     */
-    private static final int AUTOWIRED_CTOR = 1;
-
-    /**
-     * Some annotation paths
-     */
-    private static final String AUTOWIRED_PATH = "org.springframework.beans.factory.annotation.Autowired";
-    private static final String QUALIFIER_PATH = "org.springframework.beans.factory.annotation.Qualifier";
-    private static final String VALUE_PATH = "org.springframework.beans.factory.annotation.Value";
-
-    /**
-     * Some useful strings
-     */
-    private static final String STRING_VALUE = "value";
-    private static final String STRING_THIS = "this";
-    private static final String STRING_AUTOWIRED = "Autowired";
-    private static final String STRING_CTOR = "<init>";
-
     PbwiredProcessor(Messager messager, JavacTrees javacTrees, Names names, TreeMaker treeMaker, PbMainProcessor mainProcessor) {
         this.messager = messager;
         this.names = names;
@@ -98,9 +79,9 @@ class PbwiredProcessor {
                     super.visitVarDef(variableDecl);
                     Symbol owner = variableDecl.sym.owner;
                     JCTree.JCClassDecl ownClass = (JCTree.JCClassDecl) javacTrees.getTree(owner);
-                    JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(STRING_VALUE)), treeMaker.Literal(pbvalue.value()));
+                    JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(Constants.STRING_VALUE)), treeMaker.Literal(pbvalue.value()));
                     List<JCTree.JCExpression> params = List.of(jc0);
-                    JCTree.JCAnnotation valued = treeMaker.Annotation(mainProcessor.access(VALUE_PATH), params);
+                    JCTree.JCAnnotation valued = treeMaker.Annotation(mainProcessor.access(Constants.VALUE_PATH), params);
                     List<JCTree.JCAnnotation> annos = List.of(valued);
                     JCTree.JCVariableDecl param = treeMaker.VarDef(
                             treeMaker.Modifiers(Flags.PARAMETER),
@@ -113,7 +94,7 @@ class PbwiredProcessor {
                     ListBuffer<JCTree.JCStatement> mbody = new ListBuffer<>();
                     mbody.append(treeMaker.Exec(
                             treeMaker.Assign(
-                                    treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), variableDecl.name),
+                                    treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), variableDecl.name),
                                     treeMaker.Ident(variableDecl.name)
                             )
                     ));
@@ -159,7 +140,7 @@ class PbwiredProcessor {
                     alreadyInit.putIfAbsent(classDecl.sym.fullname.toString(), 0);
                     switch (p.wireType()) {
                         case SETTER:
-                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(mainProcessor.access(AUTOWIRED_PATH), List.nil());
+                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
                             List<JCTree.JCAnnotation> annotations = List.of(jcAnnotation);
                             List<JCTree.JCTypeParameter> typeParameters = List.nil();
                             JCTree.JCVariableDecl p0 = treeMaker.VarDef(
@@ -174,7 +155,7 @@ class PbwiredProcessor {
                             ListBuffer<JCTree.JCStatement> body = new ListBuffer<>();
                             body.append(
                                     treeMaker.Exec(treeMaker.Assign(
-                                            treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), p0.getName()),
+                                            treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), p0.getName()),
                                             treeMaker.Ident(p0.getName())))
                             );
                             JCTree.JCBlock bodyBlock = treeMaker.Block(0, body.toList());
@@ -195,10 +176,10 @@ class PbwiredProcessor {
                             for (JCTree t : classDecl.defs) {
                                 if (t.getKind().equals(Tree.Kind.METHOD)) {
                                     JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) t;
-                                    if (STRING_CTOR.equals(m.getName().toString())) {
+                                    if (Constants.STRING_CTOR.equals(m.getName().toString())) {
                                         for (JCTree.JCAnnotation ann : m.getModifiers().annotations) {
                                             //The class has @Autowired-annotated constructor
-                                            if (alreadyInit.get(classDecl.sym.fullname.toString()) == AUTOWIRED_CTOR || STRING_AUTOWIRED.equals(ann.annotationType.toString())) {
+                                            if (alreadyInit.get(classDecl.sym.fullname.toString()) == Constants.AUTOWIRED_CTOR || Constants.STRING_AUTOWIRED.equals(ann.annotationType.toString())) {
                                                 JCTree.JCVariableDecl var = treeMaker.VarDef(
                                                         makeParamModifiers(p),
                                                         jcVariableDecl.name,
@@ -211,16 +192,16 @@ class PbwiredProcessor {
                                                 m.params = m.params.append(var);
                                                 m.body.stats = m.body.stats.append(
                                                         treeMaker.Exec(treeMaker.Assign(
-                                                                treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), var.name),
+                                                                treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), var.name),
                                                                 treeMaker.Ident(var.name)))
                                                 );
-                                                alreadyInit.put(classDecl.sym.fullname.toString(), AUTOWIRED_CTOR);
+                                                alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
                                             }
                                         }
                                         //No-args ctor
                                         if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0
                                                 && m.params.size() == 0) {
-                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(mainProcessor.access(AUTOWIRED_PATH), List.nil());
+                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
                                             m.mods.annotations = m.mods.annotations.append(jcAutowird);
                                             JCTree.JCVariableDecl varDecl = treeMaker.VarDef(
                                                     makeParamModifiers(p),
@@ -234,10 +215,10 @@ class PbwiredProcessor {
                                             m.params = List.of(varDecl);
                                             JCTree.JCExpressionStatement assign =
                                                     treeMaker.Exec(treeMaker.Assign(
-                                                            treeMaker.Select(treeMaker.Ident(names.fromString(STRING_THIS)), jcVariableDecl.name),
+                                                            treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), jcVariableDecl.name),
                                                             treeMaker.Ident(jcVariableDecl.name)));
                                             m.body.stats = m.body.stats.append(assign);
-                                            alreadyInit.put(classDecl.sym.fullname.toString(), AUTOWIRED_CTOR);
+                                            alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
                                         }
                                     }
                                 }
@@ -268,9 +249,9 @@ class PbwiredProcessor {
     private JCTree.JCModifiers makeParamModifiers(Pbwired p) {
         JCTree.JCModifiers modifiers;
         if (p.name().trim().length() > 0) {
-            JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(STRING_VALUE)), treeMaker.Literal(p.name()));
+            JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(Constants.STRING_VALUE)), treeMaker.Literal(p.name()));
             List<JCTree.JCExpression> annParams = List.of(jc0);
-            JCTree.JCAnnotation qualifier = treeMaker.Annotation(mainProcessor.access(QUALIFIER_PATH), annParams);
+            JCTree.JCAnnotation qualifier = treeMaker.Annotation(mainProcessor.access(Constants.QUALIFIER_PATH), annParams);
             List<JCTree.JCAnnotation> annos = List.of(qualifier);
             modifiers = treeMaker.Modifiers(Flags.PARAMETER, annos);
         } else {

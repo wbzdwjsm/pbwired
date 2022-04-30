@@ -1,10 +1,10 @@
 # Pbwired
-The latest version is 1.1.1
+The latest version is 1.2.0
 
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very cool way in SpringBoot,
-including 3 annotations: @Pbwired, @Pbvalue and @FinalInject.
+including 4 annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass.
 
-For @FinalInject, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/tag/v1.1.1> to download the IDEA plugin [FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar](https://github.com/wbzdwjsm/pbwired/releases/download/v1.1.1/FinalInject-Red-Wavy-Underlined-Cleaner-1.0.0.jar) and install it.
+#### For @FinalInject and @ConstantClass, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar> to download the IDEA plugin [pbwired-plugin.jar](https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar) and install it.
 
 ## Usage
 Maven:
@@ -12,7 +12,7 @@ Maven:
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ Assuming current class is named "TestController":
 ### Part 2: [@Pbvalue](https://github.com/wbzdwjsm/pbwired)
 
 This annotation can be used for static and non-static value injection.   You don't need to write setters for static value injection.
- 
+
 Assuming your class is named "TestController":
 
 | your code | bytecode (decompiled) |
@@ -47,23 +47,106 @@ Assuming your class is named "TestController":
 
 #### Note: When [@Pbvalue](https://github.com/wbzdwjsm/pbwired) and @Value exist on the same field, [@Pbvalue](https://github.com/wbzdwjsm/pbwired) will be ignored.
 
-### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired).
+### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired)
 
-When you write a constant class, you can also inject value into final or even static final fields.
+#### Warning: @FinalInject in v1.2.0 is not compatible with that in v1.1.1. v1.1.1 is deprecated.
 
-For constants, just annotate fields with @FinalInject, no matter whether they are "static final" or not.
+#### From v1.2.0, @FinalInject uses the same key style as that of Spring's @Value, i.e. the "key" or "value" attributes are wrapped by ${}, #{}, etc.
+
+Just annotate constant fields with @FinalInject, no matter whether they are "static final" or not.
 
 ```java
-	@FinalInject(key = "constant.0")
+	@FinalInject("${constant.0}")
 	public static final String MY_CONSTANT_0;  
 ```
 
-Also accepts a default value just like Spring's annotation - @Value, with a colon as the separator:
+Also accepts a default value just like Spring's @Value, with a colon as the separator:
 
 ```java
-	@FinalInject(key = "constant.0:myConstants")
+	@FinalInject("${constant.0:myConstants}")
 	public static final String MY_CONSTANT_0;
 ```
 
-#### Note: You should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and these key-value pairs are shared by @Value and @FinalInject. 
-#### Note: You can use @FinalInject in many classes including POJOs, the only restriction is that DO NOT use it in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's env which @FinalInject needs.
+Except for primitives and their wrapper types and String, @FinalInject can also be used for annotating List, Set, Map, etc. EL expressions are available.
+```java
+    @FinalInject("${strings.0}")
+    private final List<String> STRINGS_0; // Only final modifier is OK.
+ 
+    @FinalInject("${ints.0:1,2,3}")
+    private static Set<Integer> INTS_0; // Only static modifier is OK.
+    
+    @FinalInject("#{${students.map:{'No1':'James', 'No2':'Kate'}}}")
+    private static final Map<String, String> STUDENTS_MAP;
+    
+    @FinalInject("#{T(java.lang.Math).random() * 100}")
+    private static final Double RANDOM_DOUBLE;
+```
+
+You can use @FinalInject without setting the "key" or "value" attribute, in which @FinalInject will find the fields' qualified name as the key attribute automatically.
+Assuming current class's qualified name is "com.purpblue.util.Constants":
+```java
+    ...
+    @FinalInject
+    public static final double[] MATH_NUMS;
+    ...
+```
+When compiled, the .class file looks like follows:
+```java
+    ...
+    @FinalInject("${com.purpblue.util.Constants.MATH_NUMS}")
+    public static final double[] MATH_NUMS;
+    ...
+```
+
+### Part 4: [@ConstantClass](https://github.com/wbzdwjsm/pbwired)
+If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! I answer it for you.
+Like @ConfigurationProperties in Spring, you can use @ConstantClass to annotate a class to indicate that "All suitable fields in this class will be injected".
+Fields in this class are injected by their names(Setter methods are NOT needed). Also like @ConfigurationProperties, a "prefix" attribute is acceptable.
+Assuming you have set key-value pairs in .properties/.yml config files in advance, if not, you can use @DefaultValue instead.
+
+.yml config:
+```yml
+Constant:
+  STRING_0: myString
+  MAP_0: "{'a': \"A1\", 'b':\"A2\"}"
+  LIST_0: X, Y, Z
+  DOUBLES_0: 1.23, 3.45, 3.14
+```
+```java
+@ConstantClass(prefix = "Constant")
+public class Constants0 {
+    public static final String STRING_0;
+    
+    public static final Map<String, String> MAP_0;
+    
+    public static final List<String> LIST_0;
+    
+    public static final double[] DOUBLES_0;
+    
+    @DefaultValue("1, 2, 3")
+    public static final Set<Integer> SETS_0;
+}
+```
+By default, @ConstantClass affects "static final" fields in this class, but you can set "modifiersInclude" attribute to change the rule, and also you can set "fieldsExclude" to exclude some fields.
+```java
+@ConstantClass(prefix = "Constant1", modifiersInclude = {"public", "static"}, fieldsExclude = {"DOUBLES_1"}) // All "static"(not only "static final") fields will be injected, except DOUBLES_1.
+public class Constants1 {
+    public static String string1; // public static, OK
+    
+    public static final Map<String, String> MAP_1; // public static final, OK
+    
+    public static final List<String> LIST_1; // public static final, OK
+    
+    public static final double[] DOUBLES_1 = {3.14, 2.71}; // This field will NOT be injected! See "fieldsExclude".
+    
+    @DefaultValue("1, 2, 3")
+    public static Set<Integer> sets1; // public static, OK
+    
+    private static boolean boolean1 = true; // private static, will NOT be injected. "modifiersInclude" indicates that "public static" is OK.
+
+    static double double1 = 3.14; // Only "static", will NOT be injected. "modifiersInclude" indicates that "public static" is OK.
+}
+```
+
+#### Note: Once again, you should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and of course these key-value pairs are shared by @Value, @FinalInject and @ConstantClass.
+#### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
