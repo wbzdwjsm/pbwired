@@ -28,7 +28,7 @@ public class SpringBeanUtils implements BeanFactoryAware {
     private static BeanFactory beanFactory;
 
     /**
-     * Reference to {@link DefaultListableBeanFactory#resolvableDependencies resolvableDependencies}
+     * Reference to DefaultListableBeanFactory#resolvableDependencies
      */
     private static Map<Class<?>, Object> resolvableDependencies;
 
@@ -67,8 +67,7 @@ public class SpringBeanUtils implements BeanFactoryAware {
     }
 
     /**
-     * Copied from {@link org.springframework.beans.factory.support.AutowireUtils#resolveAutowiringValue(java.lang.Object, java.lang.Class)}
-     * @see org.springframework.beans.factory.support.AutowireUtils#resolveAutowiringValue(java.lang.Object, java.lang.Class)
+     * Copied from org.springframework.beans.factory.support.AutowireUtils#resolveAutowiringValue(java.lang.Object, java.lang.Class)
      */
     private static <T> Object resolveAutowiringValue(Object autowiringValue, Class<T> requiredType) {
         if (autowiringValue instanceof ObjectFactory && !requiredType.isInstance(autowiringValue)) {
@@ -84,8 +83,7 @@ public class SpringBeanUtils implements BeanFactoryAware {
     }
 
     /**
-     * Copied from {@link org.springframework.beans.factory.support.AutowireUtils.ObjectFactoryDelegatingInvocationHandler}.
-     * @see org.springframework.beans.factory.support.AutowireUtils.ObjectFactoryDelegatingInvocationHandler
+     * Copied from org.springframework.beans.factory.support.AutowireUtils.ObjectFactoryDelegatingInvocationHandler.
      */
     private static class ObjectFactoryDelegatingInvocationHandler implements InvocationHandler, Serializable {
 
