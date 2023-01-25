@@ -21,11 +21,7 @@ import java.util.Set;
  * @author Purpblue
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes(
-        {"com.purpblue.pbwired.annotation.Pbwired",
-        "com.purpblue.pbwired.annotation.Pbvalue",
-        "com.purpblue.pbwired.annotation.FinalInject",
-        "com.purpblue.pbwired.annotation.ConstantClass"})
+@SupportedAnnotationTypes("*")
 public class PbMainProcessor extends AbstractProcessor {
 
     private JavacTrees javacTrees;
@@ -34,23 +30,28 @@ public class PbMainProcessor extends AbstractProcessor {
     private Messager messager;
     private Utils utils;
 
+    private PbwiredProcessor pbwiredProcessor;
+    private FinalInjectProcessor finalInjectProcessor;
+    private ConfigurableAnnotationProcessor configurableAnnotationProcessor;
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
         messager = processingEnv.getMessager();
         Context context = ((JavacProcessingEnvironment) processingEnv).getContext();
         this.javacTrees = JavacTrees.instance(processingEnv);
         this.treeMaker = TreeMaker.instance(context);
         this.names = Names.instance(context);
         utils = new Utils();
+        pbwiredProcessor = new PbwiredProcessor(messager, javacTrees, names, treeMaker, this);
+        finalInjectProcessor = new FinalInjectProcessor(messager, javacTrees, names, treeMaker, this);
+        configurableAnnotationProcessor = new ConfigurableAnnotationProcessor(messager, javacTrees, names, treeMaker, this);
     }
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        PbwiredProcessor processor = new PbwiredProcessor(messager, javacTrees, names, treeMaker, this);
-        processor.processPbwiredAndPbvalue(roundEnv);
-        FinalInjectProcessor finalInjectProcessor = new FinalInjectProcessor(messager, javacTrees, names, treeMaker, this);
+        pbwiredProcessor.processPbwiredAndPbvalue(roundEnv);
         finalInjectProcessor.processFinalInjectAndConstantClassAnnotation(roundEnv);
-        return true;
+        configurableAnnotationProcessor.simpleProcessConfigurableAnnotation(roundEnv);
+        return false;
     }
 
     // ----------------------Utils------------------------------
