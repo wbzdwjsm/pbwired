@@ -52,7 +52,8 @@ Assuming your class is named "TestController":
 
 ### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired)
 
-#### Warning: @FinalInject in v1.2.0 is not compatible with that v1.1.1
+#### Warning: @FinalInject in v1.2.0 is not compatible with that v1.1.1, the latter is deprecated.   
+#### Note: @FinalInject needs Springboot 2.1.x at least.
 
 #### From v1.2.0, @FinalInject uses the same key style as that of Spring's @Value, i.e. the "key" or "value" attributes are wrapped by ${}, #{}, etc.
 
@@ -102,10 +103,12 @@ When compiled, the .class file looks like follows:
 ```
 
 ### Part 4: [@ConstantClass](https://github.com/wbzdwjsm/pbwired)
-If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! I answer it for you.
+If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! 
 Like @ConfigurationProperties in Spring, you can use @ConstantClass to annotate a class to indicate that "All suitable fields in this class will be injected".
 Fields in this class are injected by their names(Setter methods are NOT needed). Also like @ConfigurationProperties, a "prefix" attribute is acceptable.
 Assuming you have set key-value pairs in .properties/.yml config files in advance, if not, you can use @DefaultValue instead.
+
+#### Note: @ConstantClass needs Springboot 2.1.x at least.
 
 .yml config:
 ```yml
@@ -155,9 +158,11 @@ public class Constants1 {
 #### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
 
 ### Part 5: Simply process @Configurable, this is new in v1.3.0
-When we process @Configurable in Spring, we use LTW(LoadTimeWeaving), which means we have to set javaagent into VM options, but in some groups or companies this is prohibited.
-Now we can process @Configurable as follows instead: put @EnableSimpleProcessorForConfigurableAnnotate on any configuration class, that's all!
-Then we can use @Configurable freely, as following:
+When you process @Configurable in Spring, you may use LTW(LoadTimeWeaving), which means you have to set javaagent into VM options, but in some groups or companies this is prohibited.
+Now you can process @Configurable as follows instead: put @EnableSimpleProcessorForConfigurableAnnotate on any configuration class, that's all!
+Then you can use @Configurable freely, as following:  
+
+
 a) Configuration class:
 ```java
 @Configuration
@@ -208,7 +213,7 @@ public class TestRunner implements CommandLineRunner {
     }
 }
 ```
-Start the application, then we can find that all fields in class MyPojo are injected.
-This mechanism can work well with LTW.
+Start the application, then you can find that all fields in class MyPojo are injected.
+#### This mechanism can work well with LTW. When you use LTW for @Configurable(And set javaagent to VM options), you need to modify Nothing.
 
 #### More information about @Configurable, see Google or other SE.
