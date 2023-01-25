@@ -1,20 +1,23 @@
 # Pbwired
-The latest version is 1.2.0
+The latest version is 1.3.0, strongly recommended. Versions before v1.2.0 are deprecated.
 
-Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very cool way in SpringBoot,
-including 4 annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass.
+Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very simple way in SpringBoot,
+including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass. It can also process @Configurable by modifying AST
+at compiling-time rather than using javaagent and LTW(LoadTimeWeaving) at runtime, which seems a little more simple.
 
 #### For @FinalInject and @ConstantClass, you may need a plugin to clean the red wavy underline, go to <https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar> to download the IDEA plugin [pbwired-plugin.jar](https://github.com/wbzdwjsm/pbwired/releases/download/1.2.0/pbwired-plugin.jar) and install it.
 
 ## Usage
-Maven:
+e.g. Maven:
 ```xml
 <dependency>
 	<groupId>com.purpblue</groupId>
 	<artifactId>pbwired</artifactId>
-	<version>1.2.0</version>
+	<version>1.3.0</version>
 </dependency>
 ```
+
+### In followings, Part 1 ~ Part 4 is since v1.2.0, Part 5 is new in v1.3.0.
 
 ### Part 1: [@Pbwired](https://github.com/wbzdwjsm/pbwired)
 
@@ -49,7 +52,8 @@ Assuming your class is named "TestController":
 
 ### Part 3: [@FinalInject](https://github.com/wbzdwjsm/pbwired)
 
-#### Warning: @FinalInject in v1.2.0 is not compatible with that in v1.1.1. v1.1.1 is deprecated.
+#### Warning: @FinalInject in v1.2.0 is not compatible with that v1.1.1, the latter is deprecated.   
+#### Note: @FinalInject needs Springboot 2.1.x at least.
 
 #### From v1.2.0, @FinalInject uses the same key style as that of Spring's @Value, i.e. the "key" or "value" attributes are wrapped by ${}, #{}, etc.
 
@@ -99,10 +103,12 @@ When compiled, the .class file looks like follows:
 ```
 
 ### Part 4: [@ConstantClass](https://github.com/wbzdwjsm/pbwired)
-If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! I answer it for you.
+If you have lots of constants to be injected, would you like to use @FinalInject one by one? No! 
 Like @ConfigurationProperties in Spring, you can use @ConstantClass to annotate a class to indicate that "All suitable fields in this class will be injected".
 Fields in this class are injected by their names(Setter methods are NOT needed). Also like @ConfigurationProperties, a "prefix" attribute is acceptable.
 Assuming you have set key-value pairs in .properties/.yml config files in advance, if not, you can use @DefaultValue instead.
+
+#### Note: @ConstantClass needs Springboot 2.1.x at least.
 
 .yml config:
 ```yml
@@ -150,3 +156,64 @@ public class Constants1 {
 
 #### Note: Once again, you should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and of course these key-value pairs are shared by @Value, @FinalInject and @ConstantClass.
 #### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
+
+### Part 5: Simply process @Configurable, this is new in v1.3.0
+When you process @Configurable in Spring, you may use LTW(LoadTimeWeaving), which means you have to set javaagent into VM options, but in some groups or companies this is prohibited.
+Now you can process @Configurable as follows instead: put @EnableSimpleProcessorForConfigurableAnnotate on any configuration class, that's all!
+Then you can use @Configurable freely, as following:  
+
+
+a) Configuration class:
+```java
+@Configuration
+@EnableSimpleProcessorForConfigurableAnnotate
+public class PbwiredConfiguration { }
+```
+b) Class with @Configurable:
+```java
+@Configurable
+public class MyPojo {
+    //------------User-defined beans----------------------
+    @Autowired
+    private PbwiredConfiguration config;
+
+    //------------System-level objects--------------------
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Resource
+    private BeanFactory beanFactory;
+
+    @Resource
+    private Environment env;
+
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Resource
+    private HttpServletRequest request;
+    //------------Method for Testing--------------------
+    public void print() {
+        System.out.println(config);
+        System.out.println(applicationContext);
+        System.out.println(beanFactory);
+        System.out.println(env);
+        System.out.println(applicationEventPublisher);
+        System.out.println(request);
+    }
+}
+```
+c) Without javaagent(Also without @EnableLoadTimeWeaving or @EnableSpringConfigured, of course), use "new" option directly:
+```java
+@Component
+public class TestRunner implements CommandLineRunner {
+    @Override
+    public void run(String... args) {
+        new MyPojo().print();
+    }
+}
+```
+Start the application, then you can find that all fields in class MyPojo are injected.
+#### This mechanism can work well with LTW. When you use LTW for @Configurable(And set javaagent to VM options), you need to modify Nothing.
+
+#### More information about @Configurable, see Google or other SE.
