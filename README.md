@@ -12,7 +12,7 @@ e.g. Maven:
 ```xml
 <dependency>
     <groupId>com.purpblue</groupId>
-    <artifactId>spring-boot-pbwired-java17</artifactId>
+    <artifactId>spring-boot3-pbwired-java17</artifactId>
     <version>1.4.0</version>
 </dependency>
 ```
