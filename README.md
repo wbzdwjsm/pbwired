@@ -6,4 +6,5 @@ including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantC
 at compiling-time rather than using javaagent and LTW(LoadTimeWeaving) at runtime, which seems a little more simple.
 
 For details, see followings:
-
+https://github.com/wbzdwjsm/pbwired/tree/1.4.0-springboot3-java17
+https://github.com/wbzdwjsm/pbwired/tree/1.4.0-springboot2-java8
