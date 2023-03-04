@@ -20,7 +20,6 @@ import java.util.Set;
  *
  * @author Purpblue
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("*")
 public class PbMainProcessor extends AbstractProcessor {
 
@@ -51,7 +50,7 @@ public class PbMainProcessor extends AbstractProcessor {
         pbwiredProcessor.processPbwiredAndPbvalue(roundEnv);
         finalInjectProcessor.processFinalInjectAndConstantClassAnnotation(roundEnv);
         configurableAnnotationProcessor.simpleProcessConfigurableAnnotation(roundEnv);
-        return false;
+        return true;
     }
 
     // ----------------------Utils------------------------------
@@ -105,5 +104,10 @@ public class PbMainProcessor extends AbstractProcessor {
         private TypeTag getAppropriateTypeTag(String primitiveName) {
             return Arrays.stream(TypeTag.values()).filter(t -> t.toString().toLowerCase().equals(primitiveName)).findFirst().get();
         }
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 }

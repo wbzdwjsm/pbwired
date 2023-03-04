@@ -32,7 +32,7 @@ public @interface Pbwired {
      * <p>Note: Because of java's mechanism, using constructors for injection
      * cannot solve the classic circular reference problem. In this situation,
      * developers can use {@link WireType#SETTER SETTER} for injection,
-     * or use {@link Autowired @Autowired}/{@link javax.annotation.Resource @Resource} directly.
+     * or use {@link Autowired @Autowired}/{@link jakarta.annotation.Resource @Resource} directly.
      */
     WireType wireType() default WireType.CONSTRUCTOR;
 

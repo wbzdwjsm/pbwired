@@ -1,5 +1,5 @@
 # Pbwired
-The latest version is 1.3.0, strongly recommended. Versions before v1.2.0 are deprecated.
+The latest version is 1.4.0, works under springboot3/java17, strongly recommended. Versions before v1.2.0 are deprecated.
 
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very simple way in SpringBoot,
 including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass. It can also process @Configurable by modifying AST
@@ -32,8 +32,8 @@ Assuming current class is named "TestController":
 | :--- | :--- |
 |@Pbwired <br> private MyService myService;|private final MyService myService;<br>@Autowired<br>public TestController(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService = myService;<br>}|
 |@Pbwired(wireType = WireType.SETTER)<br>private MyService myService;|private MyService myService;<br>@Autowired<br>public void setMyService(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService = myService;<br>}|
-|@Pbwired <br> private static MyService myService;|private static MyService myService;<br>@Autowired <br> public TestController(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;TestController.myService = myService;<br>}|
-|@Pbwired(name = "myService2")<br>private MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired<br>public TestController(MyService3 myService3) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>}|private final MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired<br>public TestController(MyService3 myService3, @Qualifier("myService2") MyService2 myService2) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService2 = myService2;<br>}|
+|@Pbwired <br> private static MyService myService;|private static MyService myService;<br>@Autowired<br> public TestController(MyService myService) {<br>&nbsp;&nbsp;&nbsp;&nbsp;TestController.myService = myService;<br>}|
+|@Pbwired(name = "myService2")<br>private MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired //@Autowired is optional.<br>public TestController(MyService3 myService3) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>}|private final MyService2 myService2;<br><br>private final MyService3 myService3;<br><br>@Autowired<br>public TestController(MyService3 myService3, @Qualifier("myService2") MyService2 myService2) {<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService3 = myService3;<br>&nbsp;&nbsp;&nbsp;&nbsp;this.myService2 = myService2;<br>}|
 
 #### Note: When [@Pbwired](https://github.com/wbzdwjsm/pbwired) and @Autowired/@Resource exist on the same field, [@Pbwired](https://github.com/wbzdwjsm/pbwired) will be ignored.
 
@@ -133,7 +133,8 @@ public class Constants0 {
     public static final Set<Integer> SETS_0;
 }
 ```
-By default, @ConstantClass affects "static final" fields in this class, but you can set "modifiersInclude" attribute to change the rule, and also you can set "fieldsExclude" to exclude some fields.
+By default, @ConstantClass affects "static final" fields in this class, but you can set "modifiersInclude" attribute to change the rule, and also you can set "fieldsExclude" to exclude some fields.   
+Like "Constant" config, assuming we have a "Constant1" config(omitted).   
 ```java
 @ConstantClass(prefix = "Constant1", modifiersInclude = {"public", "static"}, fieldsExclude = {"DOUBLES_1"}) // All "static"(not only "static final") fields will be injected, except DOUBLES_1.
 public class Constants1 {

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>WireType that {@link com.purpblue.pbwired.annotation.Pbwired @Pbwired} can choose.
- * <p>Note: If developers want to use {@link Autowired @Autowired} or {@link javax.annotation.Resource @Resource},
+ * <p>Note: If developers want to use {@link Autowired @Autowired} or {@link jakarta.annotation.Resource @Resource},
  * they should use them directly. {@link com.purpblue.pbwired.annotation.Pbwired @Pbwired} is
  * not designed for replacing them.
  *

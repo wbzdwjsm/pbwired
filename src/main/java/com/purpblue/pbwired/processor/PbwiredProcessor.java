@@ -20,7 +20,7 @@ import com.sun.tools.javac.util.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
@@ -119,6 +119,8 @@ class PbwiredProcessor {
         Set<? extends Element> pbwiredElements = roundEnv.getElementsAnnotatedWith(Pbwired.class);
         //Init:0, has @Autowired-annotated constructor: 1. When 1, it is never changed to 0.
         Map<String, Integer> alreadyInit = new HashMap<>();
+        // Need to add new Ctor
+        Map<String, Boolean> newCtorMap = new HashMap<>();
         for (Element e : pbwiredElements) {
             JCTree tree = javacTrees.getTree(e);
             //if @Resource/@Autowired exists，ignore @Pbwired
@@ -177,32 +179,39 @@ class PbwiredProcessor {
                                 if (t.getKind().equals(Tree.Kind.METHOD)) {
                                     JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) t;
                                     if (Constants.STRING_CTOR.equals(m.getName().toString())) {
+                                        // If the constructor with params has no @Autowired, add it as a flag.
+                                        if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0 && m.params.size() > 0) {
+                                            JCTree.JCAnnotation jcAutowired = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
+                                            if (!checkContainsAnnotation(m.mods.annotations, jcAutowired)) {
+                                                m.mods.annotations = m.mods.annotations.append(jcAutowired);
+                                            }
+                                            alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
+                                        }
                                         for (JCTree.JCAnnotation ann : m.getModifiers().annotations) {
                                             //The class has @Autowired-annotated constructor
-                                            if (alreadyInit.get(classDecl.sym.fullname.toString()) == Constants.AUTOWIRED_CTOR || Constants.STRING_AUTOWIRED.equals(ann.annotationType.toString())) {
+                                            if (alreadyInit.get(classDecl.sym.fullname.toString()) == Constants.AUTOWIRED_CTOR || Constants.AUTOWIRED_PATH.equals(ann.annotationType.toString())) {
                                                 JCTree.JCVariableDecl var = treeMaker.VarDef(
-                                                        makeParamModifiers(p),
-                                                        jcVariableDecl.name,
-                                                        jcVariableDecl.vartype,
-                                                        null
+                                                    makeParamModifiers(p),
+                                                    jcVariableDecl.name,
+                                                    jcVariableDecl.vartype,
+                                                    null
                                                 );
                                                 var.pos = classDecl.pos;
                                                 //If jcVariableDecl is not static, make it final
                                                 makeFinalIfPossible(jcVariableDecl);
                                                 m.params = m.params.append(var);
                                                 m.body.stats = m.body.stats.append(
-                                                        treeMaker.Exec(treeMaker.Assign(
-                                                                treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), var.name),
-                                                                treeMaker.Ident(var.name)))
+                                                    treeMaker.Exec(treeMaker.Assign(
+                                                        treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), var.name),
+                                                        treeMaker.Ident(var.name)))
                                                 );
                                                 alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
+                                                return;
                                             }
                                         }
                                         //No-args ctor
-                                        if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0
-                                                && m.params.size() == 0) {
-                                            JCTree.JCAnnotation jcAutowird = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
-                                            m.mods.annotations = m.mods.annotations.append(jcAutowird);
+                                        if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0 && m.params.size() == 0) {
+                                            JCTree.JCAnnotation jcAutowired = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
                                             JCTree.JCVariableDecl varDecl = treeMaker.VarDef(
                                                     makeParamModifiers(p),
                                                     jcVariableDecl.name,
@@ -210,15 +219,24 @@ class PbwiredProcessor {
                                                     null
                                             );
                                             varDecl.pos = classDecl.pos;
+
+                                            // Remove compiler-given constructor
+                                            if (!Boolean.TRUE.equals(newCtorMap.get(classDecl.sym.fullname.toString())) && checkIfDefaultCtorIsEmpty(m, classDecl)) {
+                                                m = newCtor(varDecl);
+                                                newCtorMap.put(classDecl.sym.fullname.toString(), true);
+                                            }
+                                            m.mods.annotations = m.mods.annotations.append(jcAutowired);
+                                            m.params = List.of(varDecl);
                                             //If jcVariableDecl is not static, make it final
                                             makeFinalIfPossible(jcVariableDecl);
-                                            m.params = List.of(varDecl);
                                             JCTree.JCExpressionStatement assign =
                                                     treeMaker.Exec(treeMaker.Assign(
                                                             treeMaker.Select(treeMaker.Ident(names.fromString(Constants.STRING_THIS)), jcVariableDecl.name),
                                                             treeMaker.Ident(jcVariableDecl.name)));
                                             m.body.stats = m.body.stats.append(assign);
+                                            classDecl.defs = classDecl.defs.append(m);
                                             alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
+                                            return;
                                         }
                                     }
                                 }
@@ -230,6 +248,44 @@ class PbwiredProcessor {
                 }
             });
         }
+    }
+
+    private boolean checkContainsAnnotation(List<JCTree.JCAnnotation> annotations, JCTree.JCAnnotation annotation) {
+        for (JCTree.JCAnnotation anno : annotations) {
+            if (("@" + anno.annotationType.type.toString()).equals(annotation.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean checkIfDefaultCtorIsEmpty(JCTree.JCMethodDecl ctor, JCTree.JCClassDecl classDecl) {
+        List<JCTree.JCStatement> stats = ctor.body.stats;
+        if (stats.isEmpty() || (stats.size() == 1 && "super();".equals(stats.get(0).toString()))) {
+            // Remove this constructor
+            ListBuffer<JCTree> newStats = new ListBuffer<>();
+            for (JCTree s : classDecl.defs) {
+                if (s != ctor) {
+                    newStats.add(s);
+                }
+            }
+            classDecl.defs = newStats.toList();
+            return true;
+        }
+        return false;
+    }
+
+    private JCTree.JCMethodDecl newCtor(JCTree.JCVariableDecl varDecl) {
+        return treeMaker.MethodDef(
+            treeMaker.Modifiers(Flags.PUBLIC),
+            names.fromString("<init>"),
+            null,
+            List.nil(),
+            List.of(varDecl),
+            List.nil(),
+            treeMaker.Block(0, List.nil()),
+            null
+        );
     }
 
     private void makeFinalIfPossible(JCTree.JCVariableDecl jcVariableDecl) {
