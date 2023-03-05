@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.purpblue</groupId>
-    <artifactId>pbwired</artifactId>
-    <version>1.3.0</version>
+    <artifactId>spring-boot2-pbwired-java8</artifactId>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
 
-    <name>pbwired</name>
+    <name>spring-boot-pbwired</name>
     <url>https://github.com/wbzdwjsm/pbwired</url>
     <description>Simplify your injection in Spring</description>
 

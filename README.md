@@ -1,6 +1,5 @@
 # Pbwired
-The latest version is 1.3.0, strongly recommended. Versions before v1.2.0 are deprecated.
-
+The latest version is 1.4.0, works under springboot2/java8, strongly recommended. Versions before v1.2.0 are deprecated.   
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very simple way in SpringBoot,
 including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass. It can also process @Configurable by modifying AST
 at compiling-time rather than using javaagent and LTW(LoadTimeWeaving) at runtime, which seems a little more simple.
@@ -11,9 +10,9 @@ at compiling-time rather than using javaagent and LTW(LoadTimeWeaving) at runtim
 e.g. Maven:
 ```xml
 <dependency>
-	<groupId>com.purpblue</groupId>
-	<artifactId>pbwired</artifactId>
-	<version>1.3.0</version>
+    <groupId>com.purpblue</groupId>
+    <artifactId>spring-boot2-pbwired-java8</artifactId>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -133,7 +132,8 @@ public class Constants0 {
     public static final Set<Integer> SETS_0;
 }
 ```
-By default, @ConstantClass affects "static final" fields in this class, but you can set "modifiersInclude" attribute to change the rule, and also you can set "fieldsExclude" to exclude some fields.
+By default, @ConstantClass affects "static final" fields in this class, but you can set "modifiersInclude" attribute to change the rule, and also you can set "fieldsExclude" to exclude some fields.   
+Like "Constant" config, assuming we have a "Constant1" config(omitted).
 ```java
 @ConstantClass(prefix = "Constant1", modifiersInclude = {"public", "static"}, fieldsExclude = {"DOUBLES_1"}) // All "static"(not only "static final") fields will be injected, except DOUBLES_1.
 public class Constants1 {

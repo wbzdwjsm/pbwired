@@ -177,6 +177,14 @@ class PbwiredProcessor {
                                 if (t.getKind().equals(Tree.Kind.METHOD)) {
                                     JCTree.JCMethodDecl m = (JCTree.JCMethodDecl) t;
                                     if (Constants.STRING_CTOR.equals(m.getName().toString())) {
+                                        // If the constructor with params has no @Autowired, add it as a flag.
+                                        if (alreadyInit.get(classDecl.sym.fullname.toString()) == 0 && m.params.size() > 0) {
+                                            JCTree.JCAnnotation jcAutowired = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
+                                            if (!checkContainsAnnotation(m.mods.annotations, jcAutowired)) {
+                                                m.mods.annotations = m.mods.annotations.append(jcAutowired);
+                                            }
+                                            alreadyInit.put(classDecl.sym.fullname.toString(), Constants.AUTOWIRED_CTOR);
+                                        }
                                         for (JCTree.JCAnnotation ann : m.getModifiers().annotations) {
                                             //The class has @Autowired-annotated constructor
                                             if (alreadyInit.get(classDecl.sym.fullname.toString()) == Constants.AUTOWIRED_CTOR || Constants.STRING_AUTOWIRED.equals(ann.annotationType.toString())) {
@@ -232,6 +240,15 @@ class PbwiredProcessor {
         }
     }
 
+    private boolean checkContainsAnnotation(List<JCTree.JCAnnotation> annotations, JCTree.JCAnnotation annotation) {
+        for (JCTree.JCAnnotation anno : annotations) {
+            if (annotation.annotationType.toString().equals(anno.annotationType.type.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void makeFinalIfPossible(JCTree.JCVariableDecl jcVariableDecl) {
         Set<Modifier> modifiersSet = jcVariableDecl.getModifiers().getFlags();
         if (modifiersSet.contains(Modifier.STATIC) || modifiersSet.contains(Modifier.FINAL)) {
@@ -271,7 +288,6 @@ class PbwiredProcessor {
 
     /**
      * Returns a String which capitalizes the first letter of the string.
-     * From spring
      */
     public static String firstUpperCase(String name) {
         if (name == null || name.length() == 0) {
