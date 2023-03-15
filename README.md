@@ -1,5 +1,5 @@
 # Pbwired
-The latest version is 1.4.0, works under springboot3/java17 without modules(i.e. no module-info.java), strongly recommended. Versions before v1.2.0 are deprecated.
+The latest version is 1.4.1, works under springboot3/java17 without modules(i.e. no module-info.java). Versions before v1.4.0 are all deprecated.
 
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very simple way in SpringBoot,
 including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass. It can also process @Configurable by modifying AST
@@ -12,8 +12,8 @@ e.g. Maven:
 ```xml
 <dependency>
     <groupId>com.purpblue</groupId>
-    <artifactId>spring-boot3-pbwired-java17</artifactId>
-    <version>1.4.0</version>
+    <artifactId>pbwired-spring-boot3-java17</artifactId>
+    <version>1.4.1</version>
 </dependency>
 ```
 
