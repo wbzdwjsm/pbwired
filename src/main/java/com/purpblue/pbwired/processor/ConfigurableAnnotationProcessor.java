@@ -25,7 +25,7 @@ import java.util.Set;
  * It does not depend on javaagent, works in compiling-time, whose mechanism is modifying AST.
  * <p>What you need is to add pbwired-1.4.1 dependency into your maven/gradle config, and annotate {@link EnableSimpleProcessorForConfigurableAnnotate} onto a configuration class.
  *
- * @author purpblue
+ * @author Purpblue
  */
 class ConfigurableAnnotationProcessor {
     private final JavacTrees javacTrees;
