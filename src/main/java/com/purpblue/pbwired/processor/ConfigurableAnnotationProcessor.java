@@ -17,13 +17,13 @@ import javax.lang.model.element.Element;
 import java.util.Set;
 
 /**
- * In Spring, developers can use {@link Configurable @Configurable} for a "new" operation, after which the fields
- * annotated with {@link Autowired @Autowired} or {@link Resource @Resource} in a class annotated with {@link Configurable @Configurable}
+ * In Spring, if a class is annotated with {@link Configurable @Configurable}, when a "new" operation is called, the fields
+ * annotated with {@link Autowired @Autowired} or {@link Resource @Resource} in the class
  * can be injected with Spring beans. For the purpose Spring uses LoadTimeWeaving(LTW) mechanism, but LTW needs javaagent, which
- * makes something complex. For example, javaagent must be added into VM options, but in some groups or companies which is prohibited.
+ * makes something complex. For example, javaagent must be added into VM options, but which is prohibited in some groups or companies.
  * <p>This {@link ConfigurableAnnotationProcessor ConfigurableAnnotationProcessor} offers another way to implement the function of {@link Configurable @Configurable}.
  * It does not depend on javaagent, works in compiling-time, whose mechanism is modifying AST.
- * <p>What you need is to add pbwired-1.3.0 dependency into your maven/gradle config, and annotate {@link EnableSimpleProcessorForConfigurableAnnotate} onto a configuration class.
+ * <p>What you need is to add pbwired-1.4.1 dependency into your maven/gradle config, and annotate {@link EnableSimpleProcessorForConfigurableAnnotate} onto a configuration class.
  *
  * @author purpblue
  */

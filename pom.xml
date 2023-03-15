@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.purpblue</groupId>
-    <artifactId>spring-boot2-pbwired-java8</artifactId>
-    <version>1.4.0</version>
+    <artifactId>pbwired-spring-boot2-java8</artifactId>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <name>spring-boot-pbwired</name>

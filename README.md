@@ -1,5 +1,5 @@
 # Pbwired
-The latest version is 1.4.0, works under springboot2/java8, strongly recommended. Versions before v1.2.0 are deprecated.   
+The latest version is 1.4.1, works under springboot2/java8. Versions before v1.2.0 are deprecated.   
 Pbwired is an interesting toy which helps to finish dependency injection even constant injection in a very simple way in SpringBoot,
 including following annotations: @Pbwired, @Pbvalue, @FinalInject and @ConstantClass. It can also process @Configurable by modifying AST
 at compiling-time rather than using javaagent and LTW(LoadTimeWeaving) at runtime, which seems a little more simple.
@@ -11,8 +11,8 @@ e.g. Maven:
 ```xml
 <dependency>
     <groupId>com.purpblue</groupId>
-    <artifactId>spring-boot2-pbwired-java8</artifactId>
-    <version>1.4.0</version>
+    <artifactId>pbwired-spring-boot2-java8</artifactId>
+    <version>1.4.1</version>
 </dependency>
 ```
 
