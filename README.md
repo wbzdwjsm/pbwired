@@ -158,7 +158,7 @@ public class Constants1 {
 #### Note: Once again, you should set config key-value pairs in .properties/.yml files in advance(e.g. application.properties), and of course these key-value pairs are shared by @Value, @FinalInject and @ConstantClass.
 #### Note: You can use @FinalInject or @ConstantClass in many classes including POJOs, the only restriction is that DO NOT use them in Boot Class(@SpringBootApplication-annotated class) because of forward use of Spring's BeanFactory which @FinalInject/@ConstantClass need.
 
-### Part 5: Simply process @Configurable, this is new in v1.3.0
+### Part 5: Simply process @Configurable, this is new since v1.3.0
 When you process @Configurable in Spring, you may use LTW(LoadTimeWeaving), which means you have to set javaagent into VM options, but in some groups or companies this is prohibited.
 Now you can process @Configurable as follows instead: put @EnableSimpleProcessorForConfigurableAnnotate on any configuration class, that's all!
 Then you can use @Configurable freely, as following:  
@@ -217,4 +217,4 @@ public class TestRunner implements CommandLineRunner {
 Start the application, then you can find that all fields in class MyPojo are injected.
 #### This mechanism can work well with LTW. When you use LTW for @Configurable(And set javaagent to VM options), you need to modify Nothing.
 
-#### More information about @Configurable, see Google or other SE.
+#### More information about @Configurable, see [spring.io](https://spring.io/)
