@@ -50,7 +50,7 @@ public class PbMainProcessor extends AbstractProcessor {
         pbwiredProcessor.processPbwiredAndPbvalue(roundEnv);
         finalInjectProcessor.processFinalInjectAndConstantClassAnnotation(roundEnv);
         configurableAnnotationProcessor.simpleProcessConfigurableAnnotation(roundEnv);
-        return true;
+        return false;
     }
 
     // ----------------------Utils------------------------------
