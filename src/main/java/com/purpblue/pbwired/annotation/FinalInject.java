@@ -1,7 +1,6 @@
 package com.purpblue.pbwired.annotation;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AliasFor;
@@ -41,7 +40,7 @@ import java.lang.annotation.Target;
  * <p>Kindly note: Developers can use {@link FinalInject @FinalInject} in many classes, including POJO and
  * those not annotated with {@link Component @Component}, {@link Service @Service}, {@link Configuration @Configuration}, etc.
  * But they should <strong>never</strong> use {@link FinalInject @FinalInject} in
- * Boot Class({@link SpringBootApplication @SpringBootApplication}-annotated class) or any
+ * Boot Class(@SpringBootApplication-annotated class) or any
  * {@link EnvironmentPostProcessor EnvironmentPostProcessor}. Doing so will produce NPE for
  * forward use of Spring's {@link Environment Environment}.
  *

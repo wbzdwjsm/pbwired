@@ -41,4 +41,9 @@ public @interface Pbwired {
      * {@link javax.annotation.Resource @Resource}
      */
     String name() default "";
+
+    /**
+     * same as {@link Autowired#required}
+     */
+    boolean required() default true;
 }

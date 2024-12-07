@@ -140,7 +140,7 @@ class PbwiredProcessor {
                     alreadyInit.putIfAbsent(classDecl.sym.fullname.toString(), 0);
                     switch (p.wireType()) {
                         case SETTER:
-                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), List.nil());
+                            JCTree.JCAnnotation jcAnnotation = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), makeRequired(p));
                             List<JCTree.JCAnnotation> annotations = List.of(jcAnnotation);
                             List<JCTree.JCTypeParameter> typeParameters = List.nil();
                             JCTree.JCVariableDecl p0 = treeMaker.VarDef(
@@ -240,6 +240,17 @@ class PbwiredProcessor {
         }
     }
 
+    private List<JCTree.JCExpression> makeRequired(Pbwired p) {
+        if (p.required()) {
+            return List.nil();
+        }
+        JCTree.JCAssign assign = treeMaker.Assign(
+                treeMaker.Ident(names.fromString("required")),
+                treeMaker.Literal(false)
+        );
+        return List.of(assign);
+    }
+
     private boolean checkContainsAnnotation(List<JCTree.JCAnnotation> annotations, JCTree.JCAnnotation annotation) {
         for (JCTree.JCAnnotation anno : annotations) {
             if (annotation.annotationType.toString().equals(anno.annotationType.type.toString())) {
@@ -264,15 +275,28 @@ class PbwiredProcessor {
      * @return
      */
     private JCTree.JCModifiers makeParamModifiers(Pbwired p) {
+        JCTree.JCAnnotation autowired = null;
+        if (!p.required()) {
+            autowired = treeMaker.Annotation(mainProcessor.access(Constants.AUTOWIRED_PATH), makeRequired(p));
+        }
         JCTree.JCModifiers modifiers;
         if (p.name().trim().length() > 0) {
             JCTree.JCExpression jc0 = treeMaker.Assign(treeMaker.Ident(names.fromString(Constants.STRING_VALUE)), treeMaker.Literal(p.name()));
             List<JCTree.JCExpression> annParams = List.of(jc0);
             JCTree.JCAnnotation qualifier = treeMaker.Annotation(mainProcessor.access(Constants.QUALIFIER_PATH), annParams);
-            List<JCTree.JCAnnotation> annos = List.of(qualifier);
+            List<JCTree.JCAnnotation> annos;
+            if (autowired == null) {
+                annos = List.of(qualifier);
+            } else {
+                annos = List.of(qualifier, autowired);
+            }
             modifiers = treeMaker.Modifiers(Flags.PARAMETER, annos);
         } else {
-            modifiers = treeMaker.Modifiers(Flags.PARAMETER);
+            if (autowired == null) {
+                modifiers = treeMaker.Modifiers(Flags.PARAMETER);
+            } else {
+                modifiers = treeMaker.Modifiers(Flags.PARAMETER, List.of(autowired));
+            }
         }
         return modifiers;
     }

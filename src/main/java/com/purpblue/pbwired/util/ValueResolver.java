@@ -31,7 +31,7 @@ public class ValueResolver {
                 // ignore
             }
         }
-        throw new BeanFactoryNotReadyException("org.springframework.beans.factory.support.DefaultListableBeanFactory does not exist in classpath, or has not initialized yet. Do NOT use @ConstantClass or @FinalInject in Boot Class. The variable Name: " + varName);
+        throw new BeanFactoryNotReadyException("org.springframework.beans.factory.support.DefaultListableBeanFactory does not exist in classpath, or has not been initialized yet. Do NOT use @ConstantClass or @FinalInject in Boot Class. The caused field name is: " + varName);
     }
 
 }

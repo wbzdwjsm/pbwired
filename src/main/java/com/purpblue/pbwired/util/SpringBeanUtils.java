@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
 /**
  * Works at runtime, depends on {@link EnableSimpleProcessorForConfigurableAnnotate @EnableSimpleConfigurableProcess}.
  * Used for resolving {@link Autowired @Autowired} or {@link Resource @Resource}.
- * Developers can also inject {@link ApplicationContext}, {@link BeanFactory}, {@link HttpServletRequest}, etc.,
+ * Developers can also inject {@link ApplicationContext}, {@link BeanFactory}, HttpServletRequest, etc.,
  * which is the same as in {@link Component}-annotated beans.
  * @author purpblue
  */
